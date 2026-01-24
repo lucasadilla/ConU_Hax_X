@@ -203,7 +203,7 @@ GEMINI_PROJECT_ID=projects/911472020955
 GEMINI_PROJECT_NUMBER=911472020955
 
 # MongoDB
-MONGODB_URI=mongodb+srv://conuhacks:tQtjq7CXLEy7z!!@conuhacks.padpp.mongodb.net/?appName=conuhacks
+MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/?appName=your_app
 
 # Solana (optional)
 SOLANA_RPC_URL=https://api.devnet.solana.com

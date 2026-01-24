@@ -357,7 +357,7 @@ await user.save();
 
 **Environment Variable:**
 ```env
-MONGODB_URI=mongodb+srv://conuhacks:tQtjq7CXLEy7z!!@conuhacks.padpp.mongodb.net/?appName=conuhacks
+MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/?appName=your_app
 ```
 
 **Connection Options:**
