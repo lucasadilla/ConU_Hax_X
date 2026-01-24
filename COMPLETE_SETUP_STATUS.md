@@ -197,7 +197,7 @@ curl -X POST http://localhost:3000/api/tickets/generate \
 ### ✅ Configured
 ```env
 # Gemini AI
-GEMINI_API_KEY=AIzaSyCAy1GNSJV7LSxi-t2lOwVwZiJ9bJ64vDA
+GEMINI_API_KEY=your_gemini_api_key_here
 GEMINI_PROJECT_NAME=conuhacksx
 GEMINI_PROJECT_ID=projects/911472020955
 GEMINI_PROJECT_NUMBER=911472020955

@@ -134,7 +134,7 @@ Then visit: **http://localhost:3000/test-gemini**
 
 ### Configured ✅
 ```env
-GEMINI_API_KEY=AIzaSyCAy1GNSJV7LSxi-t2lOwVwZiJ9bJ64vDA
+GEMINI_API_KEY=your_gemini_api_key_here
 GEMINI_PROJECT_NAME=conuhacksx
 GEMINI_PROJECT_ID=projects/911472020955
 GEMINI_PROJECT_NUMBER=911472020955
