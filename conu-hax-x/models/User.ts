@@ -13,8 +13,13 @@ export interface IUser extends Document {
   totalPoints: number;
   ticketsCompleted: number;
   ticketsAttempted: number;
+  
+  // Streak tracking
   currentStreak: number;
   longestStreak: number;
+  lastSubmissionDate?: Date;
+  streakStartDate?: Date;
+  totalDaysActive: number;
   
   // Badges
   badges: mongoose.Types.ObjectId[];
@@ -79,12 +84,27 @@ const UserSchema = new Schema<IUser>(
       default: 0,
       min: 0,
     },
+    
+    // Streak tracking
     currentStreak: {
       type: Number,
       default: 0,
       min: 0,
     },
     longestStreak: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+    lastSubmissionDate: {
+      type: Date,
+      default: null,
+    },
+    streakStartDate: {
+      type: Date,
+      default: null,
+    },
+    totalDaysActive: {
       type: Number,
       default: 0,
       min: 0,
