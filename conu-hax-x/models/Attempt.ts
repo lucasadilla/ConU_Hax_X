@@ -12,7 +12,8 @@ export interface IAttempt extends Document {
   solution: string;
   score?: number;
   passed: boolean;
-  nftAddress?: string; // NFT address if minted
+  badgeEarned: boolean; // Badge awarded on completion (off-chain)
+  nftAddress?: string; // NFT address if minted to Phantom wallet (on-chain)
   nftMintedAt?: Date;
   createdAt: Date;
   updatedAt: Date;
@@ -38,6 +39,11 @@ const AttemptSchema: Schema = new Schema(
       type: Number,
     },
     passed: {
+      type: Boolean,
+      required: true,
+      default: false,
+    },
+    badgeEarned: {
       type: Boolean,
       required: true,
       default: false,
