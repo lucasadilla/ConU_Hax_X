@@ -6,7 +6,46 @@ import Attempt, { IAttempt } from "@/models/Attempt";
 import mongoose from "mongoose";
 
 /**
- * Mint completion NFT for a user who passed a ticket
+ * Award badge for completing a ticket (off-chain)
+ * This always happens when user passes, regardless of wallet connection
+ */
+export async function awardBadge(
+  userId: string,
+  ticketId: string
+): Promise<boolean> {
+  try {
+    // Find the most recent passed attempt
+    const attempt = await Attempt.findOne({
+      userId: new mongoose.Types.ObjectId(userId),
+      ticketId: new mongoose.Types.ObjectId(ticketId),
+      passed: true,
+    }).sort({ createdAt: -1 });
+
+    if (!attempt) {
+      console.error(`No passed attempt found for user ${userId} on ticket ${ticketId}`);
+      return false;
+    }
+
+    // If badge already awarded, return true
+    if (attempt.badgeEarned) {
+      return true;
+    }
+
+    // Award the badge
+    attempt.badgeEarned = true;
+    await attempt.save();
+
+    console.log(`Badge awarded to user ${userId} for ticket ${ticketId}`);
+    return true;
+  } catch (error) {
+    console.error(`Failed to award badge for user ${userId} on ticket ${ticketId}:`, error);
+    return false;
+  }
+}
+
+/**
+ * Mint completion NFT to user's Phantom wallet
+ * Only works if user has connected their Phantom wallet
  * Prevents duplicate minting - if user already has NFT for this ticket, skips
  */
 export async function mintCompletionNFT(
@@ -40,9 +79,23 @@ export async function mintCompletionNFT(
       throw new Error(`Ticket ${ticketId} not found`);
     }
 
-    if (!user.solanaWalletAddress) {
-      console.error(
-        `User ${userId} does not have a Solana wallet. Wallet should be generated on signup.`
+    if (!user.phantomWalletAddress) {
+      console.log(
+        `User ${userId} has not connected Phantom wallet. NFT will not be minted.`
+      );
+      return null;
+    }
+
+    // Check if user has earned the badge for this ticket
+    const attempt = await Attempt.findOne({
+      userId: new mongoose.Types.ObjectId(userId),
+      ticketId: new mongoose.Types.ObjectId(ticketId),
+      badgeEarned: true,
+    });
+
+    if (!attempt) {
+      console.log(
+        `User ${userId} has not earned badge for ticket ${ticketId}. Cannot mint NFT.`
       );
       return null;
     }
@@ -51,9 +104,9 @@ export async function mintCompletionNFT(
       throw new Error(`Ticket ${ticketId} is missing NFT metadata`);
     }
 
-    // Mint the NFT
+    // Mint the NFT to user's Phantom wallet
     const nftAddress = await mintNFT({
-      userWallet: user.solanaWalletAddress,
+      userWallet: user.phantomWalletAddress,
       type: NFTType.BADGE,
       name: ticket.completionNFTName,
       description: ticket.completionNFTDescription,
@@ -61,27 +114,13 @@ export async function mintCompletionNFT(
       attributes: ticket.completionNFTAttributes || [],
     });
 
-    // Find the most recent passed attempt for this user and ticket
-    const attempt = await Attempt.findOne({
-      userId: new mongoose.Types.ObjectId(userId),
-      ticketId: new mongoose.Types.ObjectId(ticketId),
-      passed: true,
-    }).sort({ createdAt: -1 });
-
-    if (attempt) {
-      // Update the attempt with NFT address
-      attempt.nftAddress = nftAddress;
-      attempt.nftMintedAt = new Date();
-      await attempt.save();
-    } else {
-      // If no attempt found, create a record (shouldn't happen, but safety check)
-      console.warn(
-        `No passed attempt found for user ${userId} and ticket ${ticketId}, but NFT was minted`
-      );
-    }
+    // Update the attempt with NFT address
+    attempt.nftAddress = nftAddress;
+    attempt.nftMintedAt = new Date();
+    await attempt.save();
 
     console.log(
-      `Successfully minted NFT ${nftAddress} for user ${userId} on ticket ${ticketId}`
+      `Successfully minted NFT ${nftAddress} to Phantom wallet ${user.phantomWalletAddress} for user ${userId} on ticket ${ticketId}`
     );
     return nftAddress;
   } catch (error) {
@@ -91,5 +130,64 @@ export async function mintCompletionNFT(
     );
     // Return null on error (don't throw, just log as requested)
     return null;
+  }
+}
+
+/**
+ * Claim NFTs for all badges user has earned but not yet minted
+ * Called after user connects their Phantom wallet
+ */
+export async function claimAllBadgeNFTs(userId: string): Promise<{
+  claimed: number;
+  failed: number;
+  nftAddresses: string[];
+}> {
+  try {
+    const user = await User.findById(userId);
+    
+    if (!user) {
+      throw new Error(`User ${userId} not found`);
+    }
+
+    if (!user.phantomWalletAddress) {
+      return { claimed: 0, failed: 0, nftAddresses: [] };
+    }
+
+    // Find all attempts where badge is earned but NFT not minted
+    const unclaimedBadges = await Attempt.find({
+      userId: new mongoose.Types.ObjectId(userId),
+      badgeEarned: true,
+      $or: [
+        { nftAddress: { $exists: false } },
+        { nftAddress: null },
+      ],
+    }).populate("ticketId");
+
+    const results = {
+      claimed: 0,
+      failed: 0,
+      nftAddresses: [] as string[],
+    };
+
+    for (const attempt of unclaimedBadges) {
+      const ticket = attempt.ticketId as ITicket;
+      if (!ticket) continue;
+
+      const nftAddress = await mintCompletionNFT(userId, ticket._id.toString());
+      if (nftAddress) {
+        results.claimed++;
+        results.nftAddresses.push(nftAddress);
+      } else {
+        results.failed++;
+      }
+    }
+
+    console.log(
+      `Claimed ${results.claimed} NFTs for user ${userId}, ${results.failed} failed`
+    );
+    return results;
+  } catch (error) {
+    console.error(`Failed to claim badge NFTs for user ${userId}:`, error);
+    return { claimed: 0, failed: 0, nftAddresses: [] };
   }
 }

@@ -9,8 +9,7 @@ if (mongoose.connection.readyState === 0) {
 export interface IUser extends Document {
   email: string;
   name: string;
-  solanaWalletAddress?: string;
-  solanaPrivateKey?: string; // Encrypted private key
+  phantomWalletAddress?: string; // User's connected Phantom wallet (optional)
   createdAt: Date;
   updatedAt: Date;
 }
@@ -28,13 +27,10 @@ const UserSchema: Schema = new Schema(
       type: String,
       required: true,
     },
-    solanaWalletAddress: {
+    phantomWalletAddress: {
       type: String,
       unique: true,
       sparse: true, // Allows multiple null values but enforces uniqueness for non-null
-    },
-    solanaPrivateKey: {
-      type: String,
     },
   },
   {

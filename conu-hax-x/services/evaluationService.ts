@@ -1,16 +1,17 @@
-import { mintCompletionNFT } from "./nftRewardService";
+import { awardBadge, mintCompletionNFT } from "./nftRewardService";
 import Attempt, { IAttempt } from "@/models/Attempt";
 import mongoose from "mongoose";
 
 /**
- * Evaluate a solution and mint NFT if passed
- * This is a template - adapt to your actual evaluation logic
+ * Evaluate a solution and award badge if passed
+ * Badge is always awarded (off-chain)
+ * NFT is only minted if user has connected Phantom wallet
  */
 export async function evaluateSolution(
   userId: string,
   ticketId: string,
   solution: string
-): Promise<{ passed: boolean; score?: number; nftAddress?: string | null }> {
+): Promise<{ passed: boolean; score?: number; badgeEarned: boolean; nftAddress?: string | null }> {
   // TODO: Implement your actual evaluation logic here
   // This is just a placeholder example
   
@@ -25,19 +26,28 @@ export async function evaluateSolution(
     solution,
     score,
     passed,
+    badgeEarned: false, // Will be set by awardBadge
   });
 
   await attempt.save();
 
-  // If passed, mint NFT immediately
+  let badgeEarned = false;
   let nftAddress: string | null = null;
+
   if (passed) {
-    nftAddress = await mintCompletionNFT(userId, ticketId);
+    // Always award badge (off-chain)
+    badgeEarned = await awardBadge(userId, ticketId);
+    
+    // Only mint NFT if user has connected Phantom wallet
+    if (badgeEarned) {
+      nftAddress = await mintCompletionNFT(userId, ticketId);
+    }
   }
 
   return {
     passed,
     score,
+    badgeEarned,
     nftAddress,
   };
 }
