@@ -1,36 +1,126 @@
-import mongoose, { Schema, Document } from "mongoose";
-import connectDB from "@/lib/mongodb";
-
-// Connect to database
-if (mongoose.connection.readyState === 0) {
-  connectDB();
-}
+// MongoDB User model
+import mongoose, { Schema, Document, Model } from 'mongoose';
 
 export interface IUser extends Document {
+  _id: mongoose.Types.ObjectId;
+  username: string;
   email: string;
-  name: string;
-  phantomWalletAddress?: string; // User's connected Phantom wallet (optional)
+  displayName?: string;
+  avatarUrl?: string;
+  bio?: string;
+  
+  // Stats
+  totalPoints: number;
+  ticketsCompleted: number;
+  ticketsAttempted: number;
+  currentStreak: number;
+  longestStreak: number;
+  
+  // Badges
+  badges: mongoose.Types.ObjectId[];
+  level: number;
+  experience: number;
+  
+  // Preferences
+  preferredLanguage: string;
+  difficulty: 'easy' | 'medium' | 'hard';
+  
+  // Timestamps
   createdAt: Date;
   updatedAt: Date;
+  lastActiveAt: Date;
 }
 
-const UserSchema: Schema = new Schema(
+const UserSchema = new Schema<IUser>(
   {
+    username: {
+      type: String,
+      required: [true, 'Username is required'],
+      unique: true,
+      trim: true,
+      minlength: [3, 'Username must be at least 3 characters'],
+      maxlength: [30, 'Username cannot exceed 30 characters'],
+    },
     email: {
       type: String,
-      required: true,
+      required: [true, 'Email is required'],
       unique: true,
-      lowercase: true,
       trim: true,
+      lowercase: true,
+      match: [/^\S+@\S+\.\S+$/, 'Please enter a valid email'],
     },
-    name: {
+    displayName: {
       type: String,
-      required: true,
+      trim: true,
+      maxlength: [50, 'Display name cannot exceed 50 characters'],
     },
-    phantomWalletAddress: {
+    avatarUrl: {
       type: String,
-      unique: true,
-      sparse: true, // Allows multiple null values but enforces uniqueness for non-null
+      default: null,
+    },
+    bio: {
+      type: String,
+      maxlength: [500, 'Bio cannot exceed 500 characters'],
+    },
+    
+    // Stats
+    totalPoints: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+    ticketsCompleted: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+    ticketsAttempted: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+    currentStreak: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+    longestStreak: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+    
+    // Badges
+    badges: [{
+      type: Schema.Types.ObjectId,
+      ref: 'Badge',
+    }],
+    level: {
+      type: Number,
+      default: 1,
+      min: 1,
+    },
+    experience: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+    
+    // Preferences
+    preferredLanguage: {
+      type: String,
+      default: 'javascript',
+      enum: ['javascript', 'python', 'typescript', 'java', 'cpp', 'go', 'rust'],
+    },
+    difficulty: {
+      type: String,
+      default: 'easy',
+      enum: ['easy', 'medium', 'hard'],
+    },
+    
+    lastActiveAt: {
+      type: Date,
+      default: Date.now,
     },
   },
   {
@@ -38,4 +128,43 @@ const UserSchema: Schema = new Schema(
   }
 );
 
-export default mongoose.models.User || mongoose.model<IUser>("User", UserSchema);
+// Indexes
+UserSchema.index({ username: 1 });
+UserSchema.index({ email: 1 });
+UserSchema.index({ totalPoints: -1 });
+UserSchema.index({ createdAt: -1 });
+
+// Methods
+UserSchema.methods.addPoints = function(points: number) {
+  this.totalPoints += points;
+  this.experience += points;
+  
+  // Level up logic (100 XP per level)
+  const newLevel = Math.floor(this.experience / 100) + 1;
+  if (newLevel > this.level) {
+    this.level = newLevel;
+  }
+};
+
+UserSchema.methods.completeTicket = function(points: number) {
+  this.ticketsCompleted += 1;
+  this.addPoints(points);
+  this.currentStreak += 1;
+  
+  if (this.currentStreak > this.longestStreak) {
+    this.longestStreak = this.currentStreak;
+  }
+};
+
+UserSchema.methods.resetStreak = function() {
+  this.currentStreak = 0;
+};
+
+// Delete existing model if it exists (for hot reload)
+if (mongoose.models.User) {
+  delete mongoose.models.User;
+}
+
+const User: Model<IUser> = mongoose.model<IUser>('User', UserSchema);
+
+export default User;
