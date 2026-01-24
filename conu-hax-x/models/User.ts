@@ -152,6 +152,9 @@ const UserSchema = new Schema<IUser>(
 UserSchema.index({ username: 1 });
 UserSchema.index({ email: 1 });
 UserSchema.index({ totalPoints: -1 });
+UserSchema.index({ experience: -1 }); // For XP leaderboard
+UserSchema.index({ currentStreak: -1 }); // For streak leaderboard
+UserSchema.index({ ticketsCompleted: -1 }); // For completed leaderboard
 UserSchema.index({ createdAt: -1 });
 
 // Methods
