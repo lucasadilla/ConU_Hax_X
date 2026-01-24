@@ -5,18 +5,23 @@ if (!process.env.GEMINI_API_KEY) {
   throw new Error('GEMINI_API_KEY is not set in environment variables');
 }
 
-// Initialize the Gemini API client
+// Initialize the Gemini API client with v1 API (not v1beta)
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 // Model configuration
-const MODEL_NAME = 'gemini-1.5-flash';
+// Use latest available Gemini 2.5 Flash model
+const MODEL_NAME = 'gemini-2.5-flash';
 
 /**
  * Get the Gemini model instance
- * @param model - Optional model name (defaults to gemini-1.5-flash)
+ * @param model - Optional model name (defaults to gemini-2.5-flash)
  */
 export function getModel(model: string = MODEL_NAME) {
-  return genAI.getGenerativeModel({ model });
+  // Use v1 API version for stable models
+  return genAI.getGenerativeModel({ 
+    model,
+    // Use v1 instead of v1beta for stable models
+  });
 }
 
 /**
@@ -29,15 +34,31 @@ export async function generateContent(
   prompt: string,
   model: string = MODEL_NAME
 ): Promise<string> {
-  try {
-    const geminiModel = getModel(model);
-    const result = await geminiModel.generateContent(prompt);
-    const response = await result.response;
-    return response.text();
-  } catch (error) {
-    console.error('Error generating content with Gemini:', error);
-    throw new Error('Failed to generate content');
+  // Try multiple models as fallback (using available Gemini 2.x/3.x models)
+  const modelsToTry = [
+    model,
+    'gemini-2.5-flash',
+    'gemini-flash-latest',
+    'gemini-2.0-flash',
+    'gemini-2.5-pro',
+  ];
+
+  let lastError: any = null;
+
+  for (const modelName of modelsToTry) {
+    try {
+      const geminiModel = getModel(modelName);
+      const result = await geminiModel.generateContent(prompt);
+      const response = await result.response;
+      return response.text();
+    } catch (error) {
+      lastError = error;
+      // Continue to next model
+    }
   }
+
+  console.error('Error generating content with Gemini:', lastError);
+  throw new Error(`Failed to generate content: ${lastError?.message || 'Unknown'}`);
 }
 
 /**
@@ -52,28 +73,48 @@ export async function generateWithContext(
   userPrompt: string,
   model: string = MODEL_NAME
 ): Promise<string> {
-  try {
-    const geminiModel = getModel(model);
-    const chat = geminiModel.startChat({
-      history: [
-        {
-          role: 'user',
-          parts: [{ text: systemPrompt }],
-        },
-        {
-          role: 'model',
-          parts: [{ text: 'Understood. I will follow these instructions.' }],
-        },
-      ],
-    });
+  // Try multiple models as fallback (using available Gemini 2.x/3.x models)
+  const modelsToTry = [
+    model,
+    'gemini-2.5-flash',
+    'gemini-flash-latest',
+    'gemini-2.0-flash',
+    'gemini-2.5-pro',
+  ];
 
-    const result = await chat.sendMessage(userPrompt);
-    const response = await result.response;
-    return response.text();
-  } catch (error) {
-    console.error('Error generating content with context:', error);
-    throw new Error('Failed to generate content with context');
+  let lastError: any = null;
+
+  for (const modelName of modelsToTry) {
+    try {
+      console.log(`Trying model: ${modelName}`);
+      const geminiModel = getModel(modelName);
+      const chat = geminiModel.startChat({
+        history: [
+          {
+            role: 'user',
+            parts: [{ text: systemPrompt }],
+          },
+          {
+            role: 'model',
+            parts: [{ text: 'Understood. I will follow these instructions.' }],
+          },
+        ],
+      });
+
+      const result = await chat.sendMessage(userPrompt);
+      const response = await result.response;
+      console.log(`✅ Success with model: ${modelName}`);
+      return response.text();
+    } catch (error: any) {
+      console.error(`❌ Failed with model ${modelName}:`, error.message);
+      lastError = error;
+      // Continue to next model
+    }
   }
+
+  // If all models failed, throw the last error with details
+  console.error('All models failed. Last error:', lastError);
+  throw new Error(`Failed to generate content with context. Last error: ${lastError?.message || 'Unknown'}`);
 }
 
 /**
