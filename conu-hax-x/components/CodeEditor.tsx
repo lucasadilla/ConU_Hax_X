@@ -1,11 +1,18 @@
 'use client'
 
-import React, { useState, useCallback, useEffect } from 'react'
+import React, { useState, useCallback, useEffect, useRef } from 'react'
 import Editor from '@monaco-editor/react'
-import { FileCode, Lock, Play, Send, Loader2, Terminal, ChevronDown, ChevronUp } from 'lucide-react'
+import { FileCode, Lock, Play, Send, Loader2, Terminal, ChevronDown, ChevronUp, Folder, Wand2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 
 export interface EditorFile {
   id: string
@@ -23,6 +30,7 @@ export interface ConsoleOutput {
 interface CodeEditorProps {
   files: EditorFile[]
   defaultActiveFileId?: string
+  storageKey?: string
   onChange?: (fileId: string, content: string) => void
   onRun?: (files: EditorFile[]) => void
   onSubmit?: (files: EditorFile[]) => void
@@ -49,6 +57,7 @@ const OUTPUT_COLORS: Record<string, string> = {
 export default function CodeEditor({
   files: initialFiles,
   defaultActiveFileId,
+  storageKey,
   onChange,
   onRun,
   onSubmit,
@@ -62,20 +71,81 @@ export default function CodeEditor({
   const [activeFileId, setActiveFileId] = useState(defaultActiveFileId || initialFiles[0]?.id || '')
   const [cursorPosition, setCursorPosition] = useState({ line: 1, column: 1 })
   const [isConsoleOpen, setIsConsoleOpen] = useState(true)
+  const editorRef = useRef<any>(null)
+  const [isHydrated, setIsHydrated] = useState(false)
 
   // Derived
   const activeFile = allFiles.find((f) => f.id === activeFileId)
   const isDisabled = isRunning || isSubmitting
 
   useEffect(() => {
-    setAllFiles(initialFiles)
-    setActiveFileId((current) => {
-      if (current && initialFiles.some((file) => file.id === current)) {
-        return current
+    const applyFiles = (files: EditorFile[]) => {
+      setAllFiles(files)
+      setActiveFileId((current) => {
+        if (current && files.some((file) => file.id === current)) {
+          return current
+        }
+        return defaultActiveFileId || files[0]?.id || ''
+      })
+    }
+
+    if (!storageKey) {
+      applyFiles(initialFiles)
+      setIsHydrated(true)
+      return
+    }
+
+    try {
+      const storageId = `code-editor:${storageKey}`
+      const savedRaw = localStorage.getItem(storageId) || sessionStorage.getItem(storageId)
+      if (!savedRaw) {
+        applyFiles(initialFiles)
+        setIsHydrated(true)
+        return
       }
-      return defaultActiveFileId || initialFiles[0]?.id || ''
-    })
-  }, [initialFiles, defaultActiveFileId])
+
+      const savedFiles: EditorFile[] = JSON.parse(savedRaw)
+      const merged = initialFiles.map((file) => {
+        const match = savedFiles.find((saved) => saved.id === file.id) ||
+          savedFiles.find((saved) => saved.name === file.name)
+        return match ? { ...file, content: match.content } : file
+      })
+
+      applyFiles(merged)
+      setIsHydrated(true)
+    } catch {
+      applyFiles(initialFiles)
+      setIsHydrated(true)
+    }
+  }, [initialFiles, defaultActiveFileId, storageKey])
+
+  useEffect(() => {
+    if (!storageKey || !isHydrated) return
+    const payload = allFiles.map((file) => ({
+      id: file.id,
+      name: file.name,
+      language: file.language,
+      content: file.content,
+      readOnly: file.readOnly,
+    }))
+    const storageId = `code-editor:${storageKey}`
+    localStorage.setItem(storageId, JSON.stringify(payload))
+    sessionStorage.setItem(storageId, JSON.stringify(payload))
+  }, [allFiles, isHydrated, storageKey])
+
+  const persistFiles = useCallback((files: EditorFile[]) => {
+    if (!storageKey) return
+    const payload = files.map((file) => ({
+      id: file.id,
+      name: file.name,
+      language: file.language,
+      content: file.content,
+      readOnly: file.readOnly,
+    }))
+    const storageId = `code-editor:${storageKey}`
+    localStorage.setItem(storageId, JSON.stringify(payload))
+    sessionStorage.setItem(storageId, JSON.stringify(payload))
+  }, [storageKey])
 
   // Handlers
   const handleTabClick = useCallback((fileId: string) => {
@@ -85,18 +155,84 @@ export default function CodeEditor({
 
   const handleContentChange = useCallback((value: string | undefined) => {
     if (!activeFile || activeFile.readOnly) return
-    
-    setAllFiles((prev) =>
-      prev.map((f) => f.id === activeFileId ? { ...f, content: value || '' } : f)
-    )
-    onChange?.(activeFileId, value || '')
-  }, [activeFileId, activeFile, onChange])
+
+    const nextValue = value || ''
+    setAllFiles((prev) => {
+      const updated = prev.map((f) => f.id === activeFileId ? { ...f, content: nextValue } : f)
+      persistFiles(updated)
+      return updated
+    })
+    onChange?.(activeFileId, nextValue)
+  }, [activeFileId, activeFile, onChange, persistFiles])
+
+  const handleBeforeMount = useCallback((monaco: any) => {
+    if (!monaco?.languages?.typescript) return
+    monaco.languages.typescript.typescriptDefaults.setDiagnosticsOptions({
+      noSemanticValidation: true,
+      noSyntaxValidation: true,
+    })
+    monaco.languages.typescript.javascriptDefaults.setDiagnosticsOptions({
+      noSemanticValidation: true,
+      noSyntaxValidation: true,
+    })
+    monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
+      jsx: monaco.languages.typescript.JsxEmit.ReactJSX,
+      allowNonTsExtensions: true,
+    })
+    monaco.languages.typescript.javascriptDefaults.setCompilerOptions({
+      jsx: monaco.languages.typescript.JsxEmit.ReactJSX,
+    })
+  }, [])
 
   const handleEditorMount = useCallback((editor: any) => {
+    editorRef.current = editor
     editor.onDidChangeCursorPosition((e: any) => {
       setCursorPosition({ line: e.position.lineNumber, column: e.position.column })
     })
   }, [])
+
+  const formatWithPrettier = useCallback(async (content: string, language: string) => {
+    const normalized = language.toLowerCase()
+    const supported = ['javascript', 'typescript', 'jsx', 'tsx']
+    if (!supported.includes(normalized)) return content
+
+    try {
+      const prettierModule = await import('prettier/standalone')
+      const parserBabelModule = await import('prettier/parser-babel')
+      const parserTypescriptModule = await import('prettier/parser-typescript')
+      const parserEstreeModule = await import('prettier/plugins/estree')
+      const formatFn = (prettierModule as any).format || (prettierModule as any).default?.format
+      const parserBabel = (parserBabelModule as any).default || parserBabelModule
+      const parserTypescript = (parserTypescriptModule as any).default || parserTypescriptModule
+      const parserEstree = (parserEstreeModule as any).default || parserEstreeModule
+      if (!formatFn) return content
+      const parser = normalized === 'typescript' || normalized === 'tsx' ? 'typescript' : 'babel'
+
+      return formatFn(content, {
+        parser,
+        plugins: [parserBabel, parserTypescript, parserEstree],
+        singleQuote: true,
+        semi: true,
+      })
+    } catch {
+      return content
+    }
+  }, [])
+
+  const handleFormat = useCallback(async () => {
+    if (!activeFile || activeFile.readOnly) return
+    const source = editorRef.current?.getValue?.() ?? activeFile.content
+    const formatted = await formatWithPrettier(source, activeFile.language)
+    if (formatted === source) return
+
+    editorRef.current?.setValue?.(formatted)
+    setAllFiles((prev) => {
+      const updated = prev.map((file) => (file.id === activeFile.id ? { ...file, content: formatted } : file))
+      persistFiles(updated)
+      return updated
+    })
+    onChange?.(activeFile.id, formatted)
+  }, [activeFile, formatWithPrettier, onChange, persistFiles])
 
   // Empty state
   if (allFiles.length === 0) {
@@ -112,27 +248,28 @@ export default function CodeEditor({
       
       {/* FILE TABS */}
       <div className="bg-muted/50 border-b border-border">
-        <ScrollArea className="w-full">
-          <div className="flex">
-            {allFiles.map((file) => (
-              <button
-                key={file.id}
-                onClick={() => handleTabClick(file.id)}
-                className={cn(
-                  'flex items-center gap-2 px-3 py-2 text-sm border-r border-border transition-colors',
-                  file.id === activeFileId
-                    ? 'bg-card text-foreground border-t-2 border-t-primary'
-                    : 'bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground'
-                )}
-              >
-                <FileCode className={cn('size-4', LANGUAGE_COLORS[file.language] || 'text-gray-400')} />
-                <span>{file.name}</span>
-                {file.readOnly && <Lock className="size-3 text-muted-foreground" />}
-              </button>
-            ))}
+        <div className="flex items-center gap-3 px-3 py-2">
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <Folder className="size-4" />
+            <span>Files</span>
           </div>
-          <ScrollBar orientation="horizontal" />
-        </ScrollArea>
+          <Select value={activeFileId} onValueChange={handleTabClick}>
+            <SelectTrigger className="h-8 w-[260px] bg-background">
+              <SelectValue placeholder="Select a file" />
+            </SelectTrigger>
+            <SelectContent>
+              {allFiles.map((file) => (
+                <SelectItem key={file.id} value={file.id}>
+                  <span className="inline-flex items-center gap-2">
+                    <FileCode className={cn('size-3', LANGUAGE_COLORS[file.language] || 'text-gray-400')} />
+                    <span className="truncate max-w-[200px]">{file.name}</span>
+                    {file.readOnly && <Lock className="size-3 text-muted-foreground" />}
+                  </span>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       {/* MONACO EDITOR */}
@@ -145,6 +282,7 @@ export default function CodeEditor({
             value={activeFile.content}
             onChange={handleContentChange}
             onMount={handleEditorMount}
+            beforeMount={handleBeforeMount}
             theme="vs-dark"
             options={{
               readOnly: activeFile.readOnly,
@@ -209,6 +347,16 @@ export default function CodeEditor({
         </div>
 
         <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleFormat}
+            disabled={isDisabled || !activeFile || activeFile.readOnly}
+            className="h-8"
+          >
+            <Wand2 className="size-4" />
+            <span className="ml-1">Format</span>
+          </Button>
           <Button variant="outline" size="sm" onClick={() => onRun?.(allFiles)} disabled={isDisabled} className="h-8">
             {isRunning ? <Loader2 className="size-4 animate-spin" /> : <Play className="size-4" />}
             <span className="ml-1">Run</span>

@@ -47,10 +47,12 @@ export interface TicketData {
     isHidden?: boolean
   }[]
   codeFiles?: {
-    filename: string
-    language: string
-    content: string
+    filename?: string
+    name?: string
+    language?: string
+    content?: string
     isReadOnly?: boolean
+    readOnly?: boolean
   }[]
   isActive?: boolean
   createdAt?: string

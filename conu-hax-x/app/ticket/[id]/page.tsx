@@ -97,13 +97,16 @@ export default function TicketPage() {
       ]
     }
 
-    return ticket.codeFiles.map((file, index) => ({
-      id: `${file.filename}-${index}`,
-      name: file.filename,
-      language: file.language,
-      content: file.content,
-      readOnly: file.isReadOnly,
-    }))
+    return ticket.codeFiles.map((file, index) => {
+      const baseName = file.filename || file.name || `file-${index + 1}`
+      return {
+        id: baseName,
+        name: baseName,
+        language: file.language || ticket.language || 'javascript',
+        content: file.content || DEFAULT_FILE_CONTENT,
+        readOnly: file.isReadOnly ?? file.readOnly,
+      }
+    })
   }, [ticket])
 
   const visibleTestCases = useMemo(() => {
@@ -227,6 +230,7 @@ export default function TicketPage() {
             <CodeEditor
               files={editorFiles}
               defaultActiveFileId={editorFiles[0]?.id}
+              storageKey={ticketId ? `ticket:${ticketId}` : undefined}
               onRun={handleRun}
               onSubmit={handleSubmit}
               isRunning={isRunning}

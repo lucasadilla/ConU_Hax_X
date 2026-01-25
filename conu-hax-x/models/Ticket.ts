@@ -19,10 +19,12 @@ export interface TicketTestCase {
 }
 
 export interface TicketCodeFile {
-  filename: string;
+  filename?: string;
+  name?: string;
   language: string;
   content: string;
   isReadOnly?: boolean;
+  readOnly?: boolean;
 }
 
 export interface TicketDocsLink {
@@ -61,16 +63,6 @@ export interface ITicket extends Document {
     value: string | number;
   }>;
 
-  // Code Challenge Fields
-  codeFiles?: Array<{
-    id: string;
-    name: string;
-    language: string;
-    content: string;
-    readOnly?: boolean;
-  }>;
-  validationCode?: string;
-  solutionCode?: string;
   createdAt: Date;
   updatedAt: Date;
   recordAttempt: (score: number, success: boolean) => void;
@@ -138,9 +130,14 @@ const TicketSchema: Schema = new Schema(
       type: [
         {
           filename: String,
+          name: String,
           language: String,
           content: String,
           isReadOnly: {
+            type: Boolean,
+            default: false,
+          },
+          readOnly: {
             type: Boolean,
             default: false,
           },
@@ -213,19 +210,6 @@ const TicketSchema: Schema = new Schema(
       default: [],
     },
 
-    // Code Challenge Fields
-    codeFiles: {
-      type: [
-        {
-          id: { type: String, required: true },
-          name: { type: String, required: true },
-          language: { type: String, required: true },
-          content: { type: String, required: true },
-          readOnly: { type: Boolean, default: false },
-        }
-      ],
-      default: [],
-    },
     validationCode: {
       type: String, // Automated test code to run against user solution
     },
