@@ -3,105 +3,80 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* Fantasy RPG Gaming Theme - ConUHacks X Style */
+/* ConUHacks X Exact Color Scheme */
 :root {
-  --background: 220 60% 95%;
-  --foreground: 220 30% 10%;
-  --card: 220 40% 98%;
-  --card-foreground: 220 30% 10%;
-  --popover: 220 40% 98%;
-  --popover-foreground: 220 30% 10%;
-  --primary: 45 100% 50%;
-  --primary-foreground: 220 30% 10%;
-  --secondary: 220 30% 90%;
-  --secondary-foreground: 220 30% 10%;
-  --muted: 220 30% 92%;
-  --muted-foreground: 220 20% 40%;
-  --accent: 280 70% 60%;
-  --accent-foreground: 0 0% 100%;
-  --destructive: 0 85% 60%;
+  --background: 222 47% 95%;
+  --foreground: 222 47% 11%;
+  --card: 0 0% 100%;
+  --card-foreground: 222 47% 11%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 222 47% 11%;
+  --primary: 43 96% 56%;
+  --primary-foreground: 222 47% 11%;
+  --secondary: 222 47% 90%;
+  --secondary-foreground: 222 47% 11%;
+  --muted: 222 30% 90%;
+  --muted-foreground: 222 20% 40%;
+  --accent: 43 96% 56%;
+  --accent-foreground: 222 47% 11%;
+  --destructive: 0 84% 60%;
   --destructive-foreground: 0 0% 100%;
-  --border: 220 30% 85%;
-  --input: 220 30% 85%;
-  --ring: 45 100% 50%;
+  --border: 222 30% 85%;
+  --input: 222 30% 85%;
+  --ring: 43 96% 56%;
   --radius: 0.5rem;
-  --chart-1: 45 100% 50%;
-  --chart-2: 280 70% 60%;
-  --chart-3: 160 70% 45%;
-  --chart-4: 200 80% 55%;
-  --chart-5: 340 75% 55%;
 }
 
-/* Dark Mode - Blue Sky Fantasy Theme */
+/* Dark Mode - ConUHacks Blue Theme */
 .dark {
-  /* Deep blue sky gradient base */
-  --background: 220 65% 12%;
-  --foreground: 45 40% 95%;
+  /* Main background - dark navy blue */
+  --background: 222 47% 11%;
+  --foreground: 210 40% 98%;
   
-  /* Cards with blue tint */
-  --card: 220 50% 16%;
-  --card-foreground: 45 40% 95%;
+  /* Card - slightly lighter navy */
+  --card: 222 47% 14%;
+  --card-foreground: 210 40% 98%;
   
-  --popover: 220 50% 14%;
-  --popover-foreground: 45 40% 95%;
+  --popover: 222 47% 12%;
+  --popover-foreground: 210 40% 98%;
   
-  /* Gold primary */
-  --primary: 45 100% 55%;
-  --primary-foreground: 220 65% 12%;
+  /* Primary - ConUHacks gold/yellow */
+  --primary: 43 96% 56%;
+  --primary-foreground: 222 47% 11%;
   
-  /* Deep blue secondary */
-  --secondary: 220 50% 25%;
-  --secondary-foreground: 45 40% 95%;
+  /* Secondary - muted blue */
+  --secondary: 222 40% 20%;
+  --secondary-foreground: 210 40% 98%;
   
-  /* Muted blues */
-  --muted: 220 45% 20%;
-  --muted-foreground: 220 30% 65%;
+  /* Muted - darker blue */
+  --muted: 222 40% 18%;
+  --muted-foreground: 215 20% 65%;
   
-  /* Purple/pink accent */
-  --accent: 320 80% 60%;
-  --accent-foreground: 0 0% 100%;
+  /* Accent - same gold */
+  --accent: 43 96% 56%;
+  --accent-foreground: 222 47% 11%;
   
-  --destructive: 0 75% 55%;
-  --destructive-foreground: 0 0% 100%;
+  --destructive: 0 63% 50%;
+  --destructive-foreground: 210 40% 98%;
   
-  /* Blue borders */
-  --border: 220 40% 30%;
-  --input: 220 45% 22%;
-  --ring: 45 100% 55%;
-  
-  --chart-1: 45 100% 55%;
-  --chart-2: 320 80% 60%;
-  --chart-3: 160 80% 50%;
-  --chart-4: 200 90% 60%;
-  --chart-5: 280 80% 65%;
+  /* Border - subtle blue */
+  --border: 222 30% 22%;
+  --input: 222 40% 18%;
+  --ring: 43 96% 56%;
 }
 
-/* Gaming colors */
+/* Gaming difficulty colors */
 :root,
 .dark {
-  --easy: 145 80% 50%;
-  --medium: 45 100% 55%;
-  --hard: 0 80% 55%;
-  --gold: 45 100% 55%;
-  --silver: 220 15% 70%;
-  --bronze: 25 70% 45%;
-  --legendary: 280 80% 65%;
-  --epic: 200 90% 60%;
-  --rare: 160 80% 50%;
-  --common: 220 20% 50%;
-  
-  /* Sky colors */
-  --sky-top: 220 70% 8%;
-  --sky-mid: 220 65% 18%;
-  --sky-bottom: 220 55% 28%;
-  --cloud: 220 40% 85%;
-  --star: 45 100% 75%;
+  --easy: 142 71% 45%;
+  --medium: 43 96% 56%;
+  --hard: 0 72% 51%;
 }
 
 @theme inline {
-  --font-sans: 'Geist', 'Inter', system-ui, sans-serif;
-  --font-mono: 'Geist Mono', 'JetBrains Mono', monospace;
-  --font-display: 'Press Start 2P', 'Geist', system-ui, sans-serif;
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --font-display: 'Press Start 2P', system-ui, sans-serif;
   
   --color-background: hsl(var(--background));
   --color-foreground: hsl(var(--foreground));
@@ -122,21 +97,9 @@
   --color-border: hsl(var(--border));
   --color-input: hsl(var(--input));
   --color-ring: hsl(var(--ring));
-  --color-chart-1: hsl(var(--chart-1));
-  --color-chart-2: hsl(var(--chart-2));
-  --color-chart-3: hsl(var(--chart-3));
-  --color-chart-4: hsl(var(--chart-4));
-  --color-chart-5: hsl(var(--chart-5));
   --color-easy: hsl(var(--easy));
   --color-medium: hsl(var(--medium));
   --color-hard: hsl(var(--hard));
-  --color-gold: hsl(var(--gold));
-  --color-silver: hsl(var(--silver));
-  --color-bronze: hsl(var(--bronze));
-  --color-legendary: hsl(var(--legendary));
-  --color-epic: hsl(var(--epic));
-  --color-rare: hsl(var(--rare));
-  --color-common: hsl(var(--common));
   
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
@@ -150,440 +113,189 @@
   }
   body {
     @apply bg-background text-foreground;
-    font-feature-settings: "rlig" 1, "calt" 1;
   }
 }
 
 /* ============================================
-   SKY BACKGROUND WITH GRADIENT
+   CONUHACKS STYLE BACKGROUND
    ============================================ */
-.sky-background {
+.conuhacks-bg {
   background: linear-gradient(
-    180deg,
-    hsl(220, 70%, 8%) 0%,
-    hsl(220, 65%, 15%) 30%,
-    hsl(220, 55%, 25%) 60%,
-    hsl(230, 50%, 35%) 100%
+    to bottom,
+    hsl(222, 47%, 11%) 0%,
+    hsl(222, 47%, 14%) 50%,
+    hsl(222, 47%, 18%) 100%
   );
-  position: relative;
   min-height: 100vh;
 }
 
-.sky-background::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: 
-    radial-gradient(ellipse at 20% 80%, hsla(280, 60%, 40%, 0.15) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 20%, hsla(200, 70%, 50%, 0.1) 0%, transparent 40%),
-    radial-gradient(ellipse at 50% 50%, hsla(220, 60%, 30%, 0.2) 0%, transparent 60%);
-  pointer-events: none;
-}
-
 /* ============================================
-   STARS
+   CLOUDS - CSS Only
    ============================================ */
-.stars {
+.clouds-container {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
+  right: 0;
+  height: 40%;
   pointer-events: none;
-  z-index: 0;
+  overflow: hidden;
+  z-index: 1;
 }
 
-.star {
-  position: absolute;
-  width: 2px;
-  height: 2px;
-  background: hsl(45, 100%, 85%);
-  border-radius: 50%;
-  box-shadow: 0 0 4px hsl(45, 100%, 75%);
-}
-
-.star--small { width: 1px; height: 1px; opacity: 0.6; }
-.star--medium { width: 2px; height: 2px; opacity: 0.8; }
-.star--large { width: 3px; height: 3px; opacity: 1; box-shadow: 0 0 8px hsl(45, 100%, 75%); }
-
-@keyframes twinkle {
-  0%, 100% { opacity: 0.3; }
-  50% { opacity: 1; }
-}
-
-.star--twinkle {
-  animation: twinkle 3s ease-in-out infinite;
-}
-
-/* ============================================
-   CLOUDS
-   ============================================ */
 .cloud {
   position: absolute;
-  background: linear-gradient(
-    180deg,
-    hsla(220, 40%, 90%, 0.9) 0%,
-    hsla(220, 35%, 85%, 0.7) 100%
-  );
-  border-radius: 100px;
-  filter: blur(2px);
-  opacity: 0.6;
-}
-
-.cloud::before,
-.cloud::after {
-  content: '';
-  position: absolute;
-  background: inherit;
+  background: hsla(210, 30%, 90%, 0.15);
   border-radius: 50%;
+  filter: blur(30px);
 }
 
-.cloud--1 {
-  width: 200px;
-  height: 60px;
-  top: 10%;
-  left: -5%;
-  animation: cloud-float 60s linear infinite;
-}
-
-.cloud--1::before {
-  width: 100px;
-  height: 80px;
-  top: -40px;
-  left: 20px;
-}
-
-.cloud--1::after {
-  width: 120px;
-  height: 90px;
-  top: -50px;
-  right: 20px;
-}
-
-.cloud--2 {
-  width: 150px;
-  height: 45px;
-  top: 20%;
-  right: -10%;
-  animation: cloud-float-reverse 50s linear infinite;
-  opacity: 0.4;
-}
-
-.cloud--2::before {
-  width: 70px;
-  height: 55px;
-  top: -30px;
-  left: 15px;
-}
-
-.cloud--2::after {
-  width: 90px;
-  height: 65px;
-  top: -35px;
-  right: 15px;
-}
-
-.cloud--3 {
-  width: 180px;
-  height: 50px;
+.cloud-1 {
+  width: 300px;
+  height: 100px;
   top: 5%;
-  left: 30%;
-  animation: cloud-float 70s linear infinite;
-  opacity: 0.3;
+  left: 5%;
+  animation: drift 80s linear infinite;
 }
 
-.cloud--3::before {
-  width: 80px;
-  height: 60px;
-  top: -35px;
-  left: 25px;
-}
-
-.cloud--3::after {
-  width: 100px;
-  height: 70px;
-  top: -40px;
-  right: 25px;
-}
-
-.cloud--4 {
-  width: 120px;
-  height: 35px;
+.cloud-2 {
+  width: 250px;
+  height: 80px;
   top: 15%;
-  right: 20%;
-  animation: cloud-float-reverse 55s linear infinite;
+  left: 60%;
+  animation: drift 100s linear infinite reverse;
+  opacity: 0.7;
+}
+
+.cloud-3 {
+  width: 200px;
+  height: 70px;
+  top: 8%;
+  left: 30%;
+  animation: drift 90s linear infinite;
   opacity: 0.5;
 }
 
-.cloud--4::before {
-  width: 55px;
-  height: 45px;
-  top: -25px;
-  left: 10px;
+.cloud-4 {
+  width: 350px;
+  height: 120px;
+  top: 2%;
+  right: 10%;
+  animation: drift 70s linear infinite reverse;
+  opacity: 0.6;
 }
 
-.cloud--4::after {
-  width: 65px;
-  height: 50px;
-  top: -28px;
-  right: 10px;
-}
-
-@keyframes cloud-float {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(calc(100vw + 100%)); }
-}
-
-@keyframes cloud-float-reverse {
-  0% { transform: translateX(calc(100vw + 100%)); }
-  100% { transform: translateX(-100%); }
+@keyframes drift {
+  0% { transform: translateX(-100px); }
+  100% { transform: translateX(100px); }
 }
 
 /* ============================================
-   FLOATING DECORATIONS
+   BASIC ANIMATIONS
    ============================================ */
 @keyframes float {
   0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-15px); }
+  50% { transform: translateY(-10px); }
 }
 
-@keyframes float-slow {
-  0%, 100% { transform: translateY(0) rotate(0deg); }
-  50% { transform: translateY(-10px) rotate(5deg); }
+@keyframes pulse-soft {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
 }
 
-@keyframes float-coin {
-  0%, 100% { transform: translateY(0) rotateY(0deg); }
-  50% { transform: translateY(-8px) rotateY(180deg); }
+.animate-float {
+  animation: float 3s ease-in-out infinite;
 }
 
-@keyframes glow {
-  0%, 100% {
-    box-shadow: 0 0 5px hsl(var(--primary) / 0.5), 0 0 20px hsl(var(--primary) / 0.3);
-  }
-  50% {
-    box-shadow: 0 0 20px hsl(var(--primary) / 0.8), 0 0 40px hsl(var(--primary) / 0.5);
-  }
-}
-
-@keyframes sparkle {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.5; transform: scale(1.2); }
-}
-
-@keyframes pulse-glow {
-  0%, 100% { opacity: 0.6; }
-  50% { opacity: 1; }
-}
-
-@keyframes bounce-gentle {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-5px); }
-}
-
-.animate-float { animation: float 3s ease-in-out infinite; }
-.animate-float-slow { animation: float-slow 4s ease-in-out infinite; }
-.animate-float-coin { animation: float-coin 3s ease-in-out infinite; }
-.animate-glow { animation: glow 2s ease-in-out infinite; }
-.animate-sparkle { animation: sparkle 1.5s ease-in-out infinite; }
-.animate-pulse-glow { animation: pulse-glow 2s ease-in-out infinite; }
-.animate-bounce-gentle { animation: bounce-gentle 2s ease-in-out infinite; }
-
-/* Delay classes */
-.animation-delay-100 { animation-delay: 0.1s; }
-.animation-delay-200 { animation-delay: 0.2s; }
-.animation-delay-300 { animation-delay: 0.3s; }
-.animation-delay-500 { animation-delay: 0.5s; }
-.animation-delay-700 { animation-delay: 0.7s; }
-.animation-delay-1000 { animation-delay: 1s; }
-
-/* ============================================
-   TEXT EFFECTS
-   ============================================ */
-.text-gradient-gold {
-  background: linear-gradient(135deg, hsl(45, 100%, 60%), hsl(35, 100%, 50%), hsl(45, 100%, 70%));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.text-gradient-magic {
-  background: linear-gradient(135deg, hsl(280, 80%, 65%), hsl(320, 80%, 60%), hsl(260, 80%, 70%));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.text-gradient-sky {
-  background: linear-gradient(135deg, hsl(200, 90%, 60%), hsl(220, 80%, 70%), hsl(240, 70%, 65%));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.text-shadow-glow {
-  text-shadow: 0 0 10px hsl(var(--primary) / 0.5), 0 0 30px hsl(var(--primary) / 0.3);
+.animate-pulse-soft {
+  animation: pulse-soft 2s ease-in-out infinite;
 }
 
 /* ============================================
-   CARD EFFECTS
+   GOLD TEXT EFFECT
    ============================================ */
-.card-glow {
-  box-shadow: 0 0 0 1px hsl(var(--border)), 0 4px 20px hsl(var(--primary) / 0.1);
-  transition: all 0.3s ease;
+.text-gold {
+  color: hsl(43, 96%, 56%);
 }
 
-.card-glow:hover {
-  box-shadow: 0 0 0 1px hsl(var(--primary) / 0.5), 0 8px 40px hsl(var(--primary) / 0.2);
+.text-gold-gradient {
+  background: linear-gradient(135deg, hsl(43, 96%, 56%), hsl(38, 92%, 50%));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ============================================
+   BUTTONS
+   ============================================ */
+.btn-conuhacks {
+  background: hsl(43, 96%, 56%);
+  color: hsl(222, 47%, 11%);
+  font-weight: 600;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.btn-conuhacks:hover {
+  background: hsl(43, 96%, 50%);
   transform: translateY(-2px);
-}
-
-.card-fantasy {
-  background: linear-gradient(
-    135deg,
-    hsl(var(--card)) 0%,
-    hsl(220, 50%, 18%) 100%
-  );
-  border: 1px solid hsl(var(--border));
-  box-shadow: 
-    0 4px 20px hsla(220, 60%, 10%, 0.5),
-    inset 0 1px 0 hsla(45, 100%, 70%, 0.1);
+  box-shadow: 0 4px 20px hsla(43, 96%, 56%, 0.4);
 }
 
 /* ============================================
-   BUTTON EFFECTS
+   CARDS
    ============================================ */
-.btn-rpg {
-  position: relative;
-  background: linear-gradient(180deg, hsl(var(--primary)), hsl(var(--primary) / 0.8));
-  border: 2px solid hsl(var(--primary) / 0.3);
-  box-shadow: 
-    0 4px 0 hsl(35, 100%, 35%),
-    0 6px 20px hsl(var(--primary) / 0.3);
-  transition: all 0.1s ease;
-  text-shadow: 0 1px 2px hsla(0, 0%, 0%, 0.3);
+.card-conuhacks {
+  background: hsl(222, 47%, 14%);
+  border: 1px solid hsl(222, 30%, 22%);
+  border-radius: 12px;
 }
 
-.btn-rpg:hover {
-  transform: translateY(-2px);
-  box-shadow: 
-    0 6px 0 hsl(35, 100%, 35%),
-    0 10px 30px hsl(var(--primary) / 0.4);
-}
-
-.btn-rpg:active {
-  transform: translateY(2px);
-  box-shadow: 
-    0 2px 0 hsl(35, 100%, 35%),
-    0 4px 15px hsl(var(--primary) / 0.3);
-}
-
-/* ============================================
-   BADGE EFFECTS
-   ============================================ */
-.badge-legendary {
-  background: linear-gradient(135deg, hsl(280, 80%, 55%), hsl(300, 80%, 50%));
-  box-shadow: 0 0 20px hsl(280, 80%, 55% / 0.5);
-  animation: glow 2s ease-in-out infinite;
-}
-
-.badge-epic {
-  background: linear-gradient(135deg, hsl(200, 90%, 50%), hsl(220, 90%, 55%));
-  box-shadow: 0 0 15px hsl(200, 90%, 50% / 0.4);
-}
-
-.badge-rare {
-  background: linear-gradient(135deg, hsl(160, 80%, 45%), hsl(180, 80%, 50%));
-  box-shadow: 0 0 10px hsl(160, 80%, 45% / 0.3);
-}
-
-.badge-gold {
-  background: linear-gradient(135deg, hsl(45, 100%, 50%), hsl(35, 100%, 45%));
-  box-shadow: 0 0 15px hsl(45, 100%, 50% / 0.4);
-}
-
-/* ============================================
-   DECORATIVE ELEMENTS
-   ============================================ */
-.pixel-border {
-  border: 4px solid;
-  border-image: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent))) 1;
-}
-
-.separator-heart {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 1rem;
-}
-
-.separator-heart::before,
-.separator-heart::after {
-  content: '';
-  flex: 1;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, hsl(var(--primary)), transparent);
+.card-conuhacks:hover {
+  border-color: hsl(43, 96%, 56%, 0.3);
 }
 
 /* ============================================
    SCROLLBAR
    ============================================ */
 ::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
+  width: 8px;
+  height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: hsl(220, 60%, 10%);
-  border-radius: 5px;
+  background: hsl(222, 47%, 11%);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, hsl(var(--primary) / 0.6), hsl(220, 50%, 40%));
-  border-radius: 5px;
-  border: 2px solid hsl(220, 60%, 10%);
+  background: hsl(222, 30%, 25%);
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, hsl(var(--primary)), hsl(220, 50%, 50%));
+  background: hsl(43, 96%, 56%);
 }
 
 /* ============================================
-   MISC
+   SEPARATOR
    ============================================ */
+.separator-heart {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 2rem 0;
+}
+
+.separator-heart::before,
+.separator-heart::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, hsl(222, 30%, 25%), transparent);
+}
+
+/* Selection */
 ::selection {
-  background: hsl(var(--primary) / 0.3);
-  color: hsl(var(--foreground));
-}
-
-:focus-visible {
-  outline: 2px solid hsl(var(--primary));
-  outline-offset: 2px;
-}
-
-/* Glass effect */
-.glass {
-  background: hsla(220, 50%, 20%, 0.6);
-  backdrop-filter: blur(10px);
-  border: 1px solid hsla(220, 40%, 40%, 0.3);
-}
-
-/* Coin styling */
-.coin {
-  width: 40px;
-  height: 40px;
-  background: linear-gradient(135deg, hsl(45, 100%, 60%), hsl(35, 100%, 45%));
-  border-radius: 50%;
-  border: 3px solid hsl(35, 100%, 35%);
-  box-shadow: 
-    inset 0 2px 4px hsla(45, 100%, 80%, 0.5),
-    0 4px 8px hsla(0, 0%, 0%, 0.3);
-}
-
-/* Chest styling */
-.chest {
-  filter: drop-shadow(0 4px 20px hsl(var(--primary) / 0.4));
+  background: hsla(43, 96%, 56%, 0.3);
 }
