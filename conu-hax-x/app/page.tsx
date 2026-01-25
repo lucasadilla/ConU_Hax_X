@@ -138,14 +138,9 @@ export default function Home() {
             </div>
           </div>
           <div className="container mx-auto px-4 py-12">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              <div className="lg:col-span-2">
-                {/* Problem list content */}
-              </div>
-              <div className="space-y-8">
-                <DailyStreak />
-                <Leaderboard />
-              </div>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-5xl mx-auto">
+              <DailyStreak />
+              <Leaderboard />
             </div>
           </div>
           <FAQ />
