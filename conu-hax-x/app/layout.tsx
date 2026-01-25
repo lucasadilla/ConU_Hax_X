@@ -25,8 +25,8 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
-      <body className={`${pressStart.variable} ${jetbrainsMono.variable} font-mono antialiased`}>
+    <html lang="en" className="dark">
+      <body className={`${pressStart.variable} ${jetbrainsMono.variable} font-mono antialiased dark:bg-background`}>
         {children}
         <Analytics />
       </body>
