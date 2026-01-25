@@ -41,19 +41,9 @@ Output Format (JSON):
       "hints": ["hint 1", "hint 2"],
       "testCases": [
         {
-          "input": "test input 1",
-          "expectedOutput": "expected output 1",
+          "input": "test input",
+          "expectedOutput": "expected output",
           "isHidden": false
-        },
-        {
-          "input": "test input 2",
-          "expectedOutput": "expected output 2",
-          "isHidden": false
-        },
-        {
-          "input": "test input 3",
-          "expectedOutput": "expected output 3",
-          "isHidden": true
         }
       ],
       "acceptanceCriteria": ["criteria 1", "criteria 2"]
@@ -117,10 +107,9 @@ export const generateQuestPrompt = (
   
   return `Generate a practical ${themeData.displayName} quest for a Next.js + TypeScript + MongoDB application.
 
-CRITICAL REQUIREMENTS:
-1. Keep questDescription under 400 characters (2-3 sentences maximum)
-2. Each stage MUST have AT LEAST 3 test cases (minimum requirement!)
-3. Include a mix of visible and hidden test cases
+CRITICAL: Keep the questDescription under 400 characters (2-3 sentences maximum).
+
+Generate a practical ${themeData.displayName} quest for a Next.js + TypeScript + MongoDB application.
 
 Theme: ${themeData.displayName}
 Icon: ${themeData.iconEmoji}
@@ -134,7 +123,6 @@ STAGE 1 (EASY) - 20-30 minutes:
 - Create basic structure with Next.js components
 - Use TypeScript interfaces
 - Set up MongoDB schema if needed
-- Provide at least 3 test cases (2 visible, 1 hidden minimum)
 
 STAGE 2 (MEDIUM) - 30-45 minutes:
 - Implement core functionality
@@ -142,7 +130,6 @@ STAGE 2 (MEDIUM) - 30-45 minutes:
 - Connect to MongoDB
 - Handle edge cases
 - Add proper error handling
-- Provide at least 4 test cases (3 visible, 1 hidden minimum)
 
 STAGE 3 (HARD) - 45-60 minutes:
 - Optimize and enhance
@@ -150,7 +137,6 @@ STAGE 3 (HARD) - 45-60 minutes:
 - Performance optimization
 - Complete testing
 - Production-ready code
-- Provide at least 5 test cases (3 visible, 2 hidden minimum)
 
 Requirements for ALL stages:
 - Must use Next.js App Router
@@ -159,8 +145,7 @@ Requirements for ALL stages:
 - Must use MongoDB for data persistence
 - Must use Node.js APIs
 - Must include realistic starting code
-- **CRITICAL: Must include AT LEAST 3 test cases per stage (minimum 3!)**
-- At least 1 test case should be hidden (isHidden: true)
+- Must have clear test cases
 - Must build upon previous stage
 
 Make it feel like a real project task a developer would encounter at a startup or tech company.
