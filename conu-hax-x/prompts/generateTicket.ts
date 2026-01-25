@@ -20,6 +20,8 @@ Output Format (JSON):
   "title": "Challenge Title",
   "difficulty": "easy|medium|hard",
   "description": "Detailed problem description",
+  "language": "javascript|python|typescript|java",
+  "isActive": true,
   "examples": [
     {
       "input": "example input",
@@ -37,8 +39,15 @@ Output Format (JSON):
     }
   ],
   "tags": ["array", "string", "algorithms"],
-  "timeLimit": "30 minutes",
-  "language": "javascript|python|typescript|java"
+  "timeLimit": 30,
+  "codeFiles": [
+    {
+      "filename": "solution.js",
+      "language": "javascript",
+      "content": "// starter code",
+      "isReadOnly": false
+    }
+  ]
 }`;
 
 export const generateTicketPrompt = (

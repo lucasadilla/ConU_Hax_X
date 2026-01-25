@@ -2,6 +2,8 @@ import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { StreakDisplay } from "@/components/streak-display"
 import { StreakMilestones } from "@/components/streak-milestones"
+import { ProfileClientWrapper } from "@/components/ProfileClientWrapper"
+import { UserBadgesDisplay } from "@/components/UserBadgesDisplay"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -20,7 +22,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
   let user = null
   let streakInfo = null
   let nextMilestone = null
-  let milestones = []
+  let milestones: any[] = []
   let error = null
   
   try {
@@ -215,42 +217,17 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                   textShadow: '2px 2px 0 rgba(0,0,0,0.5)',
                 }}
               >
-                Earned Badges ({user.badges.length})
+                Earned Badges
               </h3>
-              {user.badges.length === 0 ? (
-                <p className="text-slate-400 text-sm text-center py-8">
-                  No badges earned yet. Complete challenges to earn your first badge!
-                </p>
-              ) : (
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                  {user.badges.map((badge: any) => (
-                    <div
-                      key={badge._id}
-                      className="p-4 rounded-lg text-center hover:scale-105 hover:-translate-y-1 transition-all"
-                      style={{
-                        backgroundColor: 'rgba(253, 224, 71, 0.1)',
-                        border: '2px solid #fde047',
-                        boxShadow: '3px 3px 0 rgba(0,0,0,0.3)',
-                      }}
-                    >
-                      <div className="text-3xl mb-2">
-                        {badge.category === 'streak' ? '🔥' : '🏆'}
-                      </div>
-                      <div className="text-sm font-bold text-white mb-1">
-                        {badge.name}
-                      </div>
-                      <div className="text-xs text-slate-500">
-                        +{badge.pointsAwarded} pts
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
+              <UserBadgesDisplay userId={userId} />
             </Card>
           </div>
 
           {/* Sidebar */}
           <div className="space-y-8">
+            {/* Phantom Wallet Connection */}
+            <ProfileClientWrapper userId={userId} />
+
             {/* Streak Milestones */}
             <StreakMilestones
               milestones={milestones}

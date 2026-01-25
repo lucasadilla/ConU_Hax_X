@@ -2,13 +2,29 @@ import { Metaplex, keypairIdentity } from "@metaplex-foundation/js";
 import { Connection, Keypair, PublicKey } from "@solana/web3.js";
 import { NFTType, NFTMetadata, MintNFTParams } from "@/types";
 
-// Initialize Solana connection and Metaplex
-let connection: Connection;
-let metaplex: Metaplex;
+// Initialize Solana connection and Metaplex (lazy-loaded)
+let connection: Connection | null = null;
+let metaplex: Metaplex | null = null;
+let initializationError: Error | null = null;
 
 function initializeSolana() {
+  // Return early if already initialized
+  if (metaplex) return;
+  
+  // Return early if already failed
+  if (initializationError) {
+    throw initializationError;
+  }
+
+  // Check for required environment variables
   if (!process.env.SOLANA_PRIVATE_KEY) {
-    throw new Error("SOLANA_PRIVATE_KEY environment variable is not set");
+    initializationError = new Error(
+      "SOLANA_PRIVATE_KEY environment variable is not set. NFT minting will not work until configured."
+    );
+    console.warn(
+      "⚠️ Solana not configured: SOLANA_PRIVATE_KEY missing. NFT features disabled."
+    );
+    throw initializationError;
   }
 
   try {
@@ -19,14 +35,18 @@ function initializeSolana() {
       "confirmed"
     );
     metaplex = Metaplex.make(connection).use(keypairIdentity(keypair));
+    console.log("✅ Solana initialized successfully");
   } catch (error) {
-    throw new Error(`Failed to initialize Solana: ${error instanceof Error ? error.message : "Unknown error"}`);
+    initializationError = new Error(
+      `Failed to initialize Solana: ${error instanceof Error ? error.message : "Unknown error"}`
+    );
+    throw initializationError;
   }
 }
 
-// Initialize on module load
-if (typeof window === "undefined") {
-  initializeSolana();
+// Helper to check if Solana is configured
+export function isSolanaConfigured(): boolean {
+  return !!process.env.SOLANA_PRIVATE_KEY && !initializationError;
 }
 
 /**
@@ -60,8 +80,13 @@ function getDefaultAttributes(type: NFTType, customAttributes: MintNFTParams["at
  */
 export async function mintNFT(params: MintNFTParams): Promise<string> {
   try {
+    // Initialize Solana if not already done
     if (!metaplex) {
       initializeSolana();
+    }
+
+    if (!metaplex) {
+      throw new Error("Solana is not configured");
     }
 
     // Validate wallet address

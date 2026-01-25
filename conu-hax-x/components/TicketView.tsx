@@ -40,6 +40,21 @@ export interface TicketData {
   constraints: string[]
   hints: string[]
   docsLinks?: { title: string; url: string }[]
+  language?: string
+  testCases?: {
+    input: string
+    expectedOutput: string
+    isHidden?: boolean
+  }[]
+  codeFiles?: {
+    filename: string
+    language: string
+    content: string
+    isReadOnly?: boolean
+  }[]
+  isActive?: boolean
+  createdAt?: string
+  updatedAt?: string
   // Stats
   attemptCount?: number
   successRate?: number
@@ -256,7 +271,7 @@ export default function TicketView({ ticket, className }: TicketViewProps) {
               <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
                 <CheckCircle2 className="size-12 mb-4 text-muted-foreground/50" />
                 <p className="text-center">
-                  Les solutions seront disponibles après avoir résolu le problème.
+                  Solutions will be available after you solve the problem.
                 </p>
               </div>
             </div>
@@ -270,7 +285,7 @@ export default function TicketView({ ticket, className }: TicketViewProps) {
                 <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
                   <Lightbulb className="size-12 mb-4 text-muted-foreground/50" />
                   <p className="text-center">
-                    Aucun indice disponible pour ce problème.
+                    No hints available for this problem.
                   </p>
                 </div>
               ) : (
@@ -303,10 +318,10 @@ export default function TicketView({ ticket, className }: TicketViewProps) {
       {(ticket.attemptCount !== undefined || ticket.successRate !== undefined) && (
         <div className="px-4 py-2 bg-muted/50 border-t border-border flex items-center gap-4 text-xs text-muted-foreground">
           {ticket.attemptCount !== undefined && (
-            <span>{ticket.attemptCount.toLocaleString()} tentatives</span>
+            <span>{ticket.attemptCount.toLocaleString()} attempts</span>
           )}
           {ticket.successRate !== undefined && (
-            <span className="text-[hsl(var(--easy))]">{ticket.successRate}% de réussite</span>
+            <span className="text-[hsl(var(--easy))]">{ticket.successRate}% success</span>
           )}
         </div>
       )}

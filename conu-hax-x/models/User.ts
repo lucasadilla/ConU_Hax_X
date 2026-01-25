@@ -8,28 +8,28 @@ export interface IUser extends Document {
   displayName?: string;
   avatarUrl?: string;
   bio?: string;
-  
+
   // Stats
   totalPoints: number;
   ticketsCompleted: number;
   ticketsAttempted: number;
-  
+
   // Streak tracking
   currentStreak: number;
   longestStreak: number;
   lastSubmissionDate?: Date;
   streakStartDate?: Date;
   totalDaysActive: number;
-  
+
   // Badges
   badges: mongoose.Types.ObjectId[];
   level: number;
   experience: number;
-  
+
   // Preferences
   preferredLanguage: string;
   difficulty: 'easy' | 'medium' | 'hard';
-  
+
   // Timestamps
   createdAt: Date;
   updatedAt: Date;
@@ -67,7 +67,7 @@ const UserSchema = new Schema<IUser>(
       type: String,
       maxlength: [500, 'Bio cannot exceed 500 characters'],
     },
-    
+
     // Stats
     totalPoints: {
       type: Number,
@@ -84,7 +84,7 @@ const UserSchema = new Schema<IUser>(
       default: 0,
       min: 0,
     },
-    
+
     // Streak tracking
     currentStreak: {
       type: Number,
@@ -109,7 +109,7 @@ const UserSchema = new Schema<IUser>(
       default: 0,
       min: 0,
     },
-    
+
     // Badges
     badges: [{
       type: Schema.Types.ObjectId,
@@ -125,7 +125,7 @@ const UserSchema = new Schema<IUser>(
       default: 0,
       min: 0,
     },
-    
+
     // Preferences
     preferredLanguage: {
       type: String,
@@ -137,7 +137,7 @@ const UserSchema = new Schema<IUser>(
       default: 'easy',
       enum: ['easy', 'medium', 'hard'],
     },
-    
+
     lastActiveAt: {
       type: Date,
       default: Date.now,
@@ -149,8 +149,6 @@ const UserSchema = new Schema<IUser>(
 );
 
 // Indexes
-UserSchema.index({ username: 1 });
-UserSchema.index({ email: 1 });
 UserSchema.index({ totalPoints: -1 });
 UserSchema.index({ experience: -1 }); // For XP leaderboard
 UserSchema.index({ currentStreak: -1 }); // For streak leaderboard
@@ -158,10 +156,10 @@ UserSchema.index({ ticketsCompleted: -1 }); // For completed leaderboard
 UserSchema.index({ createdAt: -1 });
 
 // Methods
-UserSchema.methods.addPoints = function(points: number) {
+UserSchema.methods.addPoints = function (points: number) {
   this.totalPoints += points;
   this.experience += points;
-  
+
   // Level up logic (100 XP per level)
   const newLevel = Math.floor(this.experience / 100) + 1;
   if (newLevel > this.level) {
@@ -169,17 +167,17 @@ UserSchema.methods.addPoints = function(points: number) {
   }
 };
 
-UserSchema.methods.completeTicket = function(points: number) {
+UserSchema.methods.completeTicket = function (points: number) {
   this.ticketsCompleted += 1;
   this.addPoints(points);
   this.currentStreak += 1;
-  
+
   if (this.currentStreak > this.longestStreak) {
     this.longestStreak = this.currentStreak;
   }
 };
 
-UserSchema.methods.resetStreak = function() {
+UserSchema.methods.resetStreak = function () {
   this.currentStreak = 0;
 };
 
