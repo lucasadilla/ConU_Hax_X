@@ -113,9 +113,9 @@ export default function TicketView({ ticket, className }: TicketViewProps) {
         {/* Tags */}
         {ticket.tags.length > 0 && (
           <div className="flex flex-wrap gap-1.5 mt-3">
-            {ticket.tags.map((tag) => (
+            {ticket.tags.map((tag, index) => (
               <span
-                key={tag}
+                key={`${tag}-${index}`}
                 className="px-2 py-0.5 text-xs bg-secondary text-muted-foreground rounded"
               >
                 {tag}

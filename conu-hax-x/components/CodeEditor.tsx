@@ -33,7 +33,7 @@ interface CodeEditorProps {
 }
 
 const LANGUAGE_COLORS: Record<string, string> = {
-  typescript: 'text-blue-400',
+  typescript: 'text-yellow-400',
   javascript: 'text-yellow-400',
   python: 'text-green-400',
   java: 'text-orange-400',
