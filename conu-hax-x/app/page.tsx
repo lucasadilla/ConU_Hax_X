@@ -1,6 +1,5 @@
 import { Header } from "@/components/header"
 import { Hero } from "@/components/hero"
-import { Categories } from "@/components/categories"
 import { DailyStreak } from "@/components/daily-streak"
 import { Leaderboard } from "@/components/leaderboard"
 import { FAQ } from "@/components/faq"
@@ -138,8 +137,6 @@ export default function Home() {
               <span className="text-2xl">❤️</span>
             </div>
           </div>
-
-          <Categories />
           <div className="container mx-auto px-4 py-12">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               <div className="lg:col-span-2">
