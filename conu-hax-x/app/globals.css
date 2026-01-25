@@ -3,9 +3,9 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* ConUHacks X Exact Color Scheme */
+/* ConUHacks X Color Scheme - Sky Blue Theme */
 :root {
-  --background: 222 47% 95%;
+  --background: 199 89% 85%;
   --foreground: 222 47% 11%;
   --card: 0 0% 100%;
   --card-foreground: 222 47% 11%;
@@ -13,53 +13,38 @@
   --popover-foreground: 222 47% 11%;
   --primary: 43 96% 56%;
   --primary-foreground: 222 47% 11%;
-  --secondary: 222 47% 90%;
+  --secondary: 199 80% 75%;
   --secondary-foreground: 222 47% 11%;
-  --muted: 222 30% 90%;
-  --muted-foreground: 222 20% 40%;
+  --muted: 199 60% 80%;
+  --muted-foreground: 222 20% 30%;
   --accent: 43 96% 56%;
   --accent-foreground: 222 47% 11%;
   --destructive: 0 84% 60%;
   --destructive-foreground: 0 0% 100%;
-  --border: 222 30% 85%;
-  --input: 222 30% 85%;
+  --border: 199 50% 70%;
+  --input: 199 50% 70%;
   --ring: 43 96% 56%;
   --radius: 0.5rem;
 }
 
-/* Dark Mode - ConUHacks Blue Theme */
+/* Dark Mode - Same Sky Theme but with better contrast */
 .dark {
-  /* Main background - dark navy blue */
-  --background: 222 47% 11%;
-  --foreground: 210 40% 98%;
-  
-  /* Card - slightly lighter navy */
+  --background: 199 89% 85%;
+  --foreground: 222 47% 11%;
   --card: 222 47% 14%;
   --card-foreground: 210 40% 98%;
-  
   --popover: 222 47% 12%;
   --popover-foreground: 210 40% 98%;
-  
-  /* Primary - ConUHacks gold/yellow */
   --primary: 43 96% 56%;
   --primary-foreground: 222 47% 11%;
-  
-  /* Secondary - muted blue */
   --secondary: 222 40% 20%;
   --secondary-foreground: 210 40% 98%;
-  
-  /* Muted - darker blue */
   --muted: 222 40% 18%;
   --muted-foreground: 215 20% 65%;
-  
-  /* Accent - same gold */
   --accent: 43 96% 56%;
   --accent-foreground: 222 47% 11%;
-  
   --destructive: 0 63% 50%;
   --destructive-foreground: 210 40% 98%;
-  
-  /* Border - subtle blue */
   --border: 222 30% 22%;
   --input: 222 40% 18%;
   --ring: 43 96% 56%;
@@ -112,82 +97,10 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    /* Transparent background to show SkyBackground component */
+    background: transparent !important;
+    @apply text-foreground;
   }
-}
-
-/* ============================================
-   CONUHACKS STYLE BACKGROUND
-   ============================================ */
-.conuhacks-bg {
-  background: linear-gradient(
-    to bottom,
-    hsl(222, 47%, 11%) 0%,
-    hsl(222, 47%, 14%) 50%,
-    hsl(222, 47%, 18%) 100%
-  );
-  min-height: 100vh;
-}
-
-/* ============================================
-   CLOUDS - CSS Only
-   ============================================ */
-.clouds-container {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 40%;
-  pointer-events: none;
-  overflow: hidden;
-  z-index: 1;
-}
-
-.cloud {
-  position: absolute;
-  background: hsla(210, 30%, 90%, 0.15);
-  border-radius: 50%;
-  filter: blur(30px);
-}
-
-.cloud-1 {
-  width: 300px;
-  height: 100px;
-  top: 5%;
-  left: 5%;
-  animation: drift 80s linear infinite;
-}
-
-.cloud-2 {
-  width: 250px;
-  height: 80px;
-  top: 15%;
-  left: 60%;
-  animation: drift 100s linear infinite reverse;
-  opacity: 0.7;
-}
-
-.cloud-3 {
-  width: 200px;
-  height: 70px;
-  top: 8%;
-  left: 30%;
-  animation: drift 90s linear infinite;
-  opacity: 0.5;
-}
-
-.cloud-4 {
-  width: 350px;
-  height: 120px;
-  top: 2%;
-  right: 10%;
-  animation: drift 70s linear infinite reverse;
-  opacity: 0.6;
-}
-
-@keyframes drift {
-  0% { transform: translateX(-100px); }
-  100% { transform: translateX(100px); }
 }
 
 /* ============================================
@@ -203,12 +116,30 @@
   50% { opacity: 0.7; }
 }
 
+@keyframes drift {
+  0% { transform: translateX(-20px); }
+  100% { transform: translateX(20px); }
+}
+
+@keyframes twinkle {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.8); }
+}
+
 .animate-float {
   animation: float 3s ease-in-out infinite;
 }
 
 .animate-pulse-soft {
   animation: pulse-soft 2s ease-in-out infinite;
+}
+
+.animate-drift {
+  animation: drift 20s ease-in-out infinite alternate;
+}
+
+.animate-twinkle {
+  animation: twinkle 2s ease-in-out infinite;
 }
 
 /* ============================================
@@ -226,76 +157,63 @@
 }
 
 /* ============================================
-   BUTTONS
+   BUTTONS - Pixel Style
    ============================================ */
-.btn-conuhacks {
-  background: hsl(43, 96%, 56%);
-  color: hsl(222, 47%, 11%);
-  font-weight: 600;
-  border-radius: 8px;
-  transition: all 0.2s ease;
+.btn-pixel {
+  background: #fde047;
+  color: #1e1e2e;
+  font-weight: 700;
+  border: 3px solid #1e1e2e;
+  box-shadow: 4px 4px 0 rgba(0,0,0,0.4);
+  transition: all 0.15s ease;
 }
 
-.btn-conuhacks:hover {
-  background: hsl(43, 96%, 50%);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 20px hsla(43, 96%, 56%, 0.4);
+.btn-pixel:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 rgba(0,0,0,0.4);
+}
+
+.btn-pixel:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 rgba(0,0,0,0.4);
 }
 
 /* ============================================
-   CARDS
+   CARDS - Dark with Pixel Style
    ============================================ */
-.card-conuhacks {
-  background: hsl(222, 47%, 14%);
-  border: 1px solid hsl(222, 30%, 22%);
-  border-radius: 12px;
+.card-pixel {
+  background: rgba(30, 30, 46, 0.9);
+  border: 3px solid #1e1e2e;
+  box-shadow: 6px 6px 0 rgba(0,0,0,0.3);
 }
 
-.card-conuhacks:hover {
-  border-color: hsl(43, 96%, 56%, 0.3);
+.card-pixel:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 8px 8px 0 rgba(0,0,0,0.3);
 }
 
 /* ============================================
    SCROLLBAR
    ============================================ */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
 }
 
 ::-webkit-scrollbar-track {
-  background: hsl(222, 47%, 11%);
+  background: rgba(30, 30, 46, 0.5);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: hsl(222, 30%, 25%);
-  border-radius: 4px;
+  background: #1e1e2e;
+  border: 2px solid #fde047;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: hsl(43, 96%, 56%);
-}
-
-/* ============================================
-   SEPARATOR
-   ============================================ */
-.separator-heart {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 1rem;
-  padding: 2rem 0;
-}
-
-.separator-heart::before,
-.separator-heart::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, hsl(222, 30%, 25%), transparent);
+  background: #fde047;
 }
 
 /* Selection */
 ::selection {
-  background: hsla(43, 96%, 56%, 0.3);
+  background: hsla(43, 96%, 56%, 0.4);
 }

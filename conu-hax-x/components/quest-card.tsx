@@ -27,29 +27,29 @@ interface QuestCardProps {
 
 const themeStyles = {
   regression: {
-    gradient: 'from-red-500/20 to-orange-500/20',
-    border: 'border-red-500/50',
+    borderColor: '#ef4444',
     text: 'text-red-400',
-    badge: 'bg-red-500/20 text-red-400 border-red-500',
+    badgeBg: 'rgba(239, 68, 68, 0.2)',
+    badgeText: '#f87171',
   },
   'feature-creation': {
-    gradient: 'from-green-500/20 to-teal-500/20',
-    border: 'border-green-500/50',
+    borderColor: '#22c55e',
     text: 'text-green-400',
-    badge: 'bg-green-500/20 text-green-400 border-green-500',
+    badgeBg: 'rgba(34, 197, 94, 0.2)',
+    badgeText: '#4ade80',
   },
   debugging: {
-    gradient: 'from-yellow-500/20 to-amber-500/20',
-    border: 'border-yellow-500/50',
-    text: 'text-yellow-400',
-    badge: 'bg-yellow-500/20 text-yellow-400 border-yellow-500',
+    borderColor: '#f97316',
+    text: 'text-orange-400',
+    badgeBg: 'rgba(249, 115, 22, 0.2)',
+    badgeText: '#fb923c',
   },
 }
 
 const themeLabels = {
-  regression: 'Regression & Tech Debt',
-  'feature-creation': 'Feature Creation',
-  debugging: 'Debugging',
+  regression: 'Bug Slayer',
+  'feature-creation': 'Feature Builder',
+  debugging: 'Debug Master',
 }
 
 export function QuestCard({ quest, userProgress }: QuestCardProps) {
@@ -59,10 +59,14 @@ export function QuestCard({ quest, userProgress }: QuestCardProps) {
   const isCompleted = userProgress?.isCompleted
 
   return (
-    <Card className={`relative overflow-hidden border-2 ${style.border} hover:scale-105 transition-transform duration-200`}>
-      {/* Background Gradient */}
-      <div className={`absolute inset-0 bg-gradient-to-br ${style.gradient} opacity-50`} />
-      
+    <Card 
+      className="relative overflow-hidden hover:scale-105 hover:-translate-y-1 transition-all duration-200"
+      style={{
+        backgroundColor: 'rgba(30, 30, 46, 0.9)',
+        border: `3px solid ${style.borderColor}`,
+        boxShadow: '6px 6px 0 rgba(0,0,0,0.3)',
+      }}
+    >
       {/* Content */}
       <div className="relative p-6">
         {/* Header */}
@@ -70,17 +74,30 @@ export function QuestCard({ quest, userProgress }: QuestCardProps) {
           <div className="flex items-center gap-3">
             <span className="text-4xl">{quest.iconEmoji}</span>
             <div>
-              <h3 className="font-display text-lg text-foreground mb-1">
+              <h3 className="font-display text-lg text-white mb-1">
                 {quest.title}
               </h3>
-              <Badge variant="outline" className={style.badge}>
+              <Badge 
+                variant="outline" 
+                style={{
+                  backgroundColor: style.badgeBg,
+                  color: style.badgeText,
+                  borderColor: style.borderColor,
+                }}
+              >
                 {themeLabels[quest.theme]}
               </Badge>
             </div>
           </div>
           
           {isCompleted && (
-            <Badge className="bg-primary text-primary-foreground">
+            <Badge 
+              style={{
+                backgroundColor: '#fde047',
+                color: '#1e1e2e',
+                border: '2px solid #1e1e2e',
+              }}
+            >
               <Trophy className="w-3 h-3 mr-1" />
               Complete
             </Badge>
@@ -88,12 +105,12 @@ export function QuestCard({ quest, userProgress }: QuestCardProps) {
         </div>
 
         {/* Description */}
-        <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
+        <p className="text-sm text-slate-400 mb-4 line-clamp-2">
           {quest.description}
         </p>
 
         {/* Stats */}
-        <div className="flex items-center gap-4 text-xs text-muted-foreground mb-4">
+        <div className="flex items-center gap-4 text-xs text-slate-500 mb-4">
           <div className="flex items-center gap-1">
             <Clock className="w-4 h-4" />
             <span>{quest.estimatedTime} min</span>
@@ -112,16 +129,35 @@ export function QuestCard({ quest, userProgress }: QuestCardProps) {
         {isStarted && (
           <div className="mb-4">
             <div className="flex items-center justify-between mb-2 text-xs">
-              <span className="text-muted-foreground">Progress</span>
+              <span className="text-slate-500">Progress</span>
               <span className={style.text}>{Math.round(progress)}%</span>
             </div>
-            <Progress value={progress} className="h-2" />
+            <div 
+              className="h-2 rounded-full overflow-hidden"
+              style={{ backgroundColor: 'rgba(255,255,255,0.1)' }}
+            >
+              <div 
+                className="h-full rounded-full transition-all duration-500"
+                style={{ 
+                  width: `${progress}%`,
+                  backgroundColor: style.borderColor,
+                }}
+              />
+            </div>
           </div>
         )}
 
         {/* Action Button */}
         <Link href={`/quest/${quest._id}`} className="block">
-          <Button className="w-full" variant={isCompleted ? 'outline' : 'default'}>
+          <Button 
+            className="w-full font-bold transition-all hover:-translate-y-0.5"
+            style={{
+              backgroundColor: isCompleted ? 'transparent' : '#fde047',
+              color: isCompleted ? '#fde047' : '#1e1e2e',
+              border: `2px solid ${isCompleted ? '#fde047' : '#1e1e2e'}`,
+              boxShadow: '3px 3px 0 rgba(0,0,0,0.3)',
+            }}
+          >
             {isCompleted ? 'Review Quest' : isStarted ? 'Continue Quest' : 'Start Quest'}
           </Button>
         </Link>
