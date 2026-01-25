@@ -5,12 +5,8 @@ if (!process.env.GEMINI_API_KEY) {
   throw new Error('GEMINI_API_KEY is not set in environment variables');
 }
 
-// DEBUG: Log what key is actually being loaded (first/last 4 chars only for security)
-const apiKey = process.env.GEMINI_API_KEY;
-console.log('🔑 Gemini API Key loaded:', apiKey.substring(0, 4) + '...' + apiKey.substring(apiKey.length - 4));
-
 // Initialize the Gemini API client with v1 API (not v1beta)
-const genAI = new GoogleGenerativeAI(apiKey);
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 // Model configuration
 // Use latest available Gemini 2.5 Flash model
