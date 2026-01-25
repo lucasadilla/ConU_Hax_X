@@ -163,7 +163,22 @@ export default function Home() {
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-center gap-4 py-8">
             <div className="h-1 flex-1 bg-gradient-to-r from-transparent via-slate-700 to-transparent rounded" />
-            <span className="text-3xl">❤️</span>
+            <svg viewBox="0 0 32 32" className="w-8 h-8" style={{ imageRendering: 'pixelated' }}>
+              {/* Pixelated Crown */}
+              <rect x="8" y="12" width="4" height="4" fill="#fde047"/>
+              <rect x="12" y="16" width="4" height="4" fill="#fde047"/>
+              <rect x="16" y="12" width="4" height="4" fill="#fde047"/>
+              <rect x="20" y="16" width="4" height="4" fill="#fde047"/>
+              <rect x="8" y="16" width="4" height="4" fill="#fde047"/>
+              <rect x="20" y="16" width="4" height="4" fill="#fde047"/>
+              <rect x="6" y="20" width="20" height="8" fill="#fde047"/>
+              <rect x="12" y="8" width="4" height="4" fill="#fde047"/>
+              <rect x="16" y="8" width="4" height="4" fill="#fde047"/>
+              {/* Jewels */}
+              <rect x="10" y="22" width="2" height="2" fill="#ef4444"/>
+              <rect x="15" y="22" width="2" height="2" fill="#22c55e"/>
+              <rect x="20" y="22" width="2" height="2" fill="#3b82f6"/>
+            </svg>
             <div className="h-1 flex-1 bg-gradient-to-r from-transparent via-slate-700 to-transparent rounded" />
           </div>
         </div>
