@@ -30,18 +30,20 @@ export default function BadgesPreviewPage() {
           {/* Title with retro styling */}
           <div className="text-center mb-8">
             <h1 
-              className="text-5xl font-bold mb-2 drop-shadow-lg"
+              className="text-5xl font-display font-bold mb-2"
               style={{ 
-                color: '#1e1e2e',
-                textShadow: '3px 3px 0 #fde047, 6px 6px 0 rgba(0,0,0,0.2)',
-                fontFamily: 'system-ui, sans-serif',
+                color: '#fde047',
+                textShadow: '4px 4px 0 rgba(0,0,0,0.5)',
               }}
             >
-              🎮 Quest Badges
+              Quest Badges
             </h1>
             <p 
-              className="text-xl font-semibold"
-              style={{ color: '#1e3a5f', textShadow: '1px 1px 0 rgba(255,255,255,0.5)' }}
+              className="text-xl font-bold"
+              style={{ 
+                color: '#ffffff',
+                textShadow: '2px 2px 0 rgba(0,0,0,0.3)',
+              }}
             >
               ConUHacks X - Collect Them All!
             </p>
