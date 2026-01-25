@@ -1,6 +1,8 @@
 'use client';
 
 import Image from 'next/image';
+import { Header } from '@/components/header';
+import { Footer } from '@/components/footer';
 
 const themes = ['regression', 'feature-creation', 'debugging'] as const;
 const questNumbers = [1, 2, 3] as const;
@@ -20,7 +22,10 @@ const difficultyColors = {
 
 export default function BadgesPreviewPage() {
   return (
-    <div className="min-h-screen p-8">
+    <div className="min-h-screen">
+      <Header />
+      
+      <main className="p-8">
         <div className="max-w-7xl mx-auto">
           {/* Title with retro styling */}
           <div className="text-center mb-8">
@@ -225,6 +230,9 @@ export default function BadgesPreviewPage() {
             </p>
           </div>
         </div>
+      </main>
+
+      <Footer />
     </div>
   );
 }

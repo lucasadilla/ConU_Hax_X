@@ -18,7 +18,7 @@ export function DailyStreak() {
   const totalXP = weekDays.filter(d => d.completed).reduce((acc, d) => acc + d.reward, 0)
 
   return (
-    <section id="streak" className="py-16">
+    <section id="streak" className="py-16" style={{ scrollMarginTop: '100px' }}>
       <div className="container mx-auto px-4">
         <div className="max-w-4xl mx-auto">
           {/* Header */}
