@@ -4,6 +4,7 @@ import { Press_Start_2P, JetBrains_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { SkyBackground } from '@/components/SkyBackground'
 import './globals.css'
+import { AuthProvider } from '@/components/providers/auth-provider'
 
 const pressStart = Press_Start_2P({ 
   weight: '400',
@@ -26,12 +27,9 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
-      <body className={`${pressStart.variable} ${jetbrainsMono.variable} font-mono antialiased min-h-screen`}>
-        <SkyBackground />
-        <div className="relative z-10">
-          {children}
-        </div>
+    <html lang="en" className="dark">
+      <body className={`${pressStart.variable} ${jetbrainsMono.variable} font-mono antialiased dark:bg-background`}>
+        <AuthProvider>{children}</AuthProvider>
         <Analytics />
       </body>
     </html>

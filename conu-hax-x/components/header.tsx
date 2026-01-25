@@ -1,12 +1,18 @@
 "use client"
 
 import React from "react"
+import { signIn, signOut, useSession } from "next-auth/react"
 
 import Link from "next/link"
-import { Sword, Trophy, Scroll, User, Flame, HelpCircle } from "lucide-react"
+import { Sword, Trophy, Scroll, User, Flame, LogOut, HelpCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 export function Header() {
+  const { data: session, status } = useSession()
+  const user = session?.user
+  const profileHref = user?.id ? `/profile/${user.id}` : null
+
   return (
     <header 
       className="sticky top-0 z-50 backdrop-blur-sm"
@@ -56,20 +62,55 @@ export function Header() {
             <Trophy className="h-4 w-4 text-yellow-400" />
             <span className="text-sm font-medium text-yellow-400">2,450 XP</span>
           </div>
-          <Button 
-            variant="outline" 
-            size="sm"
-            className="font-medium"
-            style={{
-              backgroundColor: '#fde047',
-              color: '#1e1e2e',
-              border: '2px solid #1e1e2e',
-              boxShadow: '2px 2px 0 rgba(0,0,0,0.3)',
-            }}
-          >
-            <User className="h-4 w-4 mr-2" />
-            Login
-          </Button>
+          {user ? (
+            <div className="flex items-center gap-2">
+              {profileHref ? (
+                <Link href={profileHref} className="flex items-center gap-2">
+                  <Avatar className="border-2 border-primary/40">
+                    <AvatarImage src={user.image || undefined} />
+                    <AvatarFallback className="bg-primary/20 text-primary text-xs font-bold">
+                      {(user.name || user.email || "U")[0].toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="hidden md:block text-sm font-medium text-primary">
+                    {user.name || user.email}
+                  </span>
+                </Link>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <Avatar className="border-2 border-primary/40">
+                    <AvatarImage src={user.image || undefined} />
+                    <AvatarFallback className="bg-primary/20 text-primary text-xs font-bold">
+                      {(user.name || user.email || "U")[0].toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="hidden md:block text-sm font-medium text-primary">
+                    {user.name || user.email}
+                  </span>
+                </div>
+              )}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => signOut({ callbackUrl: "/" })}
+                className="border-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground font-medium bg-transparent"
+              >
+                <LogOut className="h-4 w-4 mr-2" />
+                Sign out
+              </Button>
+            </div>
+          ) : (
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={status === "loading"}
+              onClick={() => signIn()}
+              className="border-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground font-medium bg-transparent"
+            >
+              <User className="h-4 w-4 mr-2" />
+              Login
+            </Button>
+          )}
         </div>
       </div>
     </header>
