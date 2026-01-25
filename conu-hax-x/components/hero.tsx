@@ -23,7 +23,7 @@ export function Hero() {
           }}
         >
           <Sparkles className="h-4 w-4 text-yellow-400 animate-pulse" />
-          <span className="text-sm font-medium text-yellow-400">Season 10 Now Live!</span>
+          <span className="text-sm font-medium text-yellow-400">Earn an NFT badge for completing quests!</span>
         </div>
 
         {/* Main title */}
