@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { PublicKey } from "@solana/web3.js";
 import User from "@/models/User";
 import { claimAllBadgeNFTs } from "@/services/nftRewardService";
+import { isSolanaConfigured } from "@/lib/solana";
 
 /**
  * Connect user's Phantom wallet
@@ -12,6 +13,11 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { userId, walletAddress } = body;
+
+    // Check if Solana is configured
+    if (!isSolanaConfigured()) {
+      console.warn("⚠️ Solana not configured - wallet connected but NFTs will not be minted");
+    }
 
     // Validation
     if (!userId) {
