@@ -1,5 +1,7 @@
 "use client"
 
+import { useRouter } from "next/navigation"
+import { useState } from "react"
 import { Flame, Gift, Zap, Calendar, ChevronRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { StreakInfo } from "@/services/streakService"
@@ -9,6 +11,32 @@ interface DailyStreakProps {
 }
 
 export function DailyStreak({ streak }: DailyStreakProps) {
+  const router = useRouter()
+  const [isLoadingQuest, setIsLoadingQuest] = useState(false)
+  const [questError, setQuestError] = useState<string | null>(null)
+
+  const handleTodaysQuest = async () => {
+    try {
+      setIsLoadingQuest(true)
+      setQuestError(null)
+
+      const response = await fetch("/api/quests/random", { cache: "no-store" })
+      if (!response.ok) {
+        throw new Error("No quests available")
+      }
+      const data = await response.json()
+      if (!data?.id) {
+        throw new Error("No quests available")
+      }
+
+      router.push(`/quest/${data.id}`)
+    } catch (error) {
+      setQuestError("No quests available yet. Try again soon.")
+    } finally {
+      setIsLoadingQuest(false)
+    }
+  }
+
   // Default values if no streak data provided (not logged in or error)
   const currentStreak = streak?.currentStreak || 0
   const streakStatus = streak?.streakStatus || 'new'
@@ -153,6 +181,8 @@ export function DailyStreak({ streak }: DailyStreakProps) {
                 </div>
                 <Button
                   className="font-medium"
+                  onClick={handleTodaysQuest}
+                  disabled={isLoadingQuest}
                   style={{
                     backgroundColor: '#fde047',
                     color: '#1e1e2e',
@@ -161,7 +191,7 @@ export function DailyStreak({ streak }: DailyStreakProps) {
                   }}
                 >
                   <Calendar className="h-4 w-4 mr-2" />
-                  {"Today's Quest"}
+                  {isLoadingQuest ? "Finding Quest..." : "Today's Quest"}
                   <ChevronRight className="h-4 w-4 ml-2" />
                 </Button>
               </div>
