@@ -1,8 +1,9 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { Sparkles, Swords, ChevronRight } from "lucide-react"
+import { Sparkles, Swords } from "lucide-react"
 import { useEffect, useState } from "react"
+import Link from "next/link"
 
 export function Hero() {
   const [stats, setStats] = useState({
@@ -91,32 +92,21 @@ export function Hero() {
 
         {/* CTA Buttons */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-          <Button
-            size="lg"
-            className="font-[family-name:var(--font-display)] text-sm px-8 py-6 transition-all hover:-translate-y-1"
-            style={{
-              backgroundColor: '#fde047',
-              color: '#1e1e2e',
-              border: '3px solid #1e1e2e',
-              boxShadow: '4px 4px 0 rgba(0,0,0,0.4)',
-            }}
-          >
-            <Swords className="h-5 w-5 mr-2" />
-            Start Your Quest
-          </Button>
-          <Button
-            size="lg"
-            className="px-8 py-6 transition-all hover:-translate-y-1"
-            style={{
-              backgroundColor: 'rgba(30, 30, 46, 0.9)',
-              color: 'white',
-              border: '3px solid #1e1e2e',
-              boxShadow: '4px 4px 0 rgba(0,0,0,0.3)',
-            }}
-          >
-            View Challenges
-            <ChevronRight className="h-5 w-5 ml-2" />
-          </Button>
+          <Link href="/quests">
+            <Button
+              size="lg"
+              className="font-[family-name:var(--font-display)] text-sm px-8 py-6 transition-all hover:-translate-y-1"
+              style={{
+                backgroundColor: '#fde047',
+                color: '#1e1e2e',
+                border: '3px solid #1e1e2e',
+                boxShadow: '4px 4px 0 rgba(0,0,0,0.4)',
+              }}
+            >
+              <Swords className="h-5 w-5 mr-2" />
+              Start Your Quest
+            </Button>
+          </Link>
         </div>
 
         {/* Stats */}
