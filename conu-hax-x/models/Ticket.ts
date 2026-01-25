@@ -60,6 +60,17 @@ export interface ITicket extends Document {
     trait_type: string;
     value: string | number;
   }>;
+
+  // Code Challenge Fields
+  codeFiles?: Array<{
+    id: string;
+    name: string;
+    language: string;
+    content: string;
+    readOnly?: boolean;
+  }>;
+  validationCode?: string;
+  solutionCode?: string;
   createdAt: Date;
   updatedAt: Date;
   recordAttempt: (score: number, success: boolean) => void;
@@ -200,6 +211,26 @@ const TicketSchema: Schema = new Schema(
         },
       ],
       default: [],
+    },
+
+    // Code Challenge Fields
+    codeFiles: {
+      type: [
+        {
+          id: { type: String, required: true },
+          name: { type: String, required: true },
+          language: { type: String, required: true },
+          content: { type: String, required: true },
+          readOnly: { type: Boolean, default: false },
+        }
+      ],
+      default: [],
+    },
+    validationCode: {
+      type: String, // Automated test code to run against user solution
+    },
+    solutionCode: {
+      type: String, // Reference solution
     },
   },
   {
