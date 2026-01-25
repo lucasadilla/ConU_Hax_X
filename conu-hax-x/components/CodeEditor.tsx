@@ -102,7 +102,7 @@ export default function CodeEditor({
   if (allFiles.length === 0) {
     return (
       <div className={cn('flex items-center justify-center h-full bg-card text-muted-foreground', className)}>
-        Aucun fichier ouvert
+        No file open
       </div>
     )
   }
@@ -180,7 +180,7 @@ export default function CodeEditor({
         {isConsoleOpen && (
           <ScrollArea className="h-[150px] bg-card p-3">
             {consoleOutputs.length === 0 ? (
-              <p className="text-muted-foreground text-sm">Clique sur Run pour exécuter ton code...</p>
+              <p className="text-muted-foreground text-sm">Click Run to execute your code...</p>
             ) : (
               <div className="space-y-1 font-mono text-sm">
                 {consoleOutputs.map((output, i) => (
