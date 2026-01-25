@@ -94,7 +94,7 @@ export default async function QuestsPage() {
         {/* Quest Tabs by Theme */}
         <Tabs defaultValue="all" className="max-w-6xl mx-auto">
           <TabsList 
-            className="grid w-full grid-cols-4 mb-8 p-1 rounded-xl"
+            className="grid w-full grid-cols-4 mb-8 h-12 items-stretch gap-1 p-[3px] rounded-xl"
             style={{
               backgroundColor: 'rgba(30, 30, 46, 0.9)',
               border: '3px solid #1e1e2e',
@@ -102,25 +102,25 @@ export default async function QuestsPage() {
           >
             <TabsTrigger 
               value="all"
-              className="data-[state=active]:bg-yellow-400 data-[state=active]:text-slate-900 text-slate-300"
+              className="h-full rounded-lg py-2 data-[state=active]:bg-yellow-400 data-[state=active]:text-slate-900 text-slate-300"
             >
               All ({quests.length})
             </TabsTrigger>
             <TabsTrigger 
               value="regression"
-              className="data-[state=active]:bg-red-500 data-[state=active]:text-white text-slate-300"
+              className="h-full rounded-lg py-2 data-[state=active]:bg-red-500 data-[state=active]:text-white text-slate-300"
             >
               🐛 ({questsByTheme.regression.length})
             </TabsTrigger>
             <TabsTrigger 
               value="feature-creation"
-              className="data-[state=active]:bg-green-500 data-[state=active]:text-white text-slate-300"
+              className="h-full rounded-lg py-2 data-[state=active]:bg-green-500 data-[state=active]:text-white text-slate-300"
             >
               ✨ ({questsByTheme['feature-creation'].length})
             </TabsTrigger>
             <TabsTrigger 
               value="debugging"
-              className="data-[state=active]:bg-orange-500 data-[state=active]:text-white text-slate-300"
+              className="h-full rounded-lg py-2 data-[state=active]:bg-orange-500 data-[state=active]:text-white text-slate-300"
             >
               🔧 ({questsByTheme.debugging.length})
             </TabsTrigger>
