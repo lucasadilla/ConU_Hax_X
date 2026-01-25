@@ -9,23 +9,37 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { ArrowRight, Map, Trophy, Zap } from "lucide-react"
 import Link from "next/link"
+import { getServerSession } from "next-auth"
+import { authOptions } from "@/app/auth"
+import StreakService from "@/services/streakService"
 
-export default function Home() {
+export default async function Home() {
+  const session = await getServerSession(authOptions)
+  let streakInfo = null
+
+  if (session?.user?.id) {
+    try {
+      streakInfo = await StreakService.getStreakInfo(session.user.id)
+    } catch (error) {
+      console.error("Failed to fetch streak info:", error)
+    }
+  }
+
   return (
     <div className="min-h-screen">
       <Header />
       <main>
         <Hero />
-        
+
         {/* Quest System Highlight */}
         <section className="py-16 container mx-auto px-4">
           <div className="text-center mb-12">
             <Badge className="mb-4 bg-yellow-500/20 text-yellow-900 border-yellow-500">
               🗺️ New Feature
             </Badge>
-            <h2 
+            <h2
               className="font-display text-3xl md:text-4xl mb-4"
-              style={{ 
+              style={{
                 color: '#1e1e2e',
                 textShadow: '2px 2px 0 #fde047',
               }}
@@ -40,9 +54,9 @@ export default function Home() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             {/* Theme Cards */}
-            <Card 
+            <Card
               className="p-6 hover:scale-[1.02] transition-all duration-300 hover:-translate-y-1"
-              style={{ 
+              style={{
                 backgroundColor: 'rgba(30, 30, 46, 0.9)',
                 border: '3px solid #1e1e2e',
                 boxShadow: '6px 6px 0 rgba(0,0,0,0.3)',
@@ -60,9 +74,9 @@ export default function Home() {
               </Badge>
             </Card>
 
-            <Card 
+            <Card
               className="p-6 hover:scale-[1.02] transition-all duration-300 hover:-translate-y-1"
-              style={{ 
+              style={{
                 backgroundColor: 'rgba(30, 30, 46, 0.9)',
                 border: '3px solid #1e1e2e',
                 boxShadow: '6px 6px 0 rgba(0,0,0,0.3)',
@@ -80,9 +94,9 @@ export default function Home() {
               </Badge>
             </Card>
 
-            <Card 
+            <Card
               className="p-6 hover:scale-[1.02] transition-all duration-300 hover:-translate-y-1"
-              style={{ 
+              style={{
                 backgroundColor: 'rgba(30, 30, 46, 0.9)',
                 border: '3px solid #1e1e2e',
                 boxShadow: '6px 6px 0 rgba(0,0,0,0.3)',
@@ -102,9 +116,9 @@ export default function Home() {
           </div>
 
           {/* Quest Features */}
-          <div 
+          <div
             className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 max-w-3xl mx-auto p-6 rounded-xl"
-            style={{ 
+            style={{
               backgroundColor: 'rgba(30, 30, 46, 0.85)',
               boxShadow: '4px 4px 0 rgba(0,0,0,0.3)',
               border: '3px solid #1e1e2e',
@@ -142,8 +156,8 @@ export default function Home() {
           {/* CTA */}
           <div className="text-center">
             <Link href="/quests">
-              <Button 
-                size="lg" 
+              <Button
+                size="lg"
                 className="group text-lg px-8 py-6 font-bold"
                 style={{
                   backgroundColor: '#fde047',
@@ -167,10 +181,10 @@ export default function Home() {
             <div className="h-1 flex-1 bg-gradient-to-r from-transparent via-slate-700 to-transparent rounded" />
           </div>
         </div>
-        
+
         <div className="container mx-auto px-4 py-12">
           <div className="space-y-12">
-            <DailyStreak />
+            <DailyStreak streak={streakInfo} />
             <Leaderboard />
           </div>
         </div>

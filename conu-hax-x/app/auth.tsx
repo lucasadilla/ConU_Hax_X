@@ -100,15 +100,27 @@ export const authOptions: NextAuthOptions = {
       }
       return true
     },
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger }) {
       if (user?.id) {
         token.uid = user.id
+      }
+
+      // On initial sign in or when token is refreshed, we can fetch latest user stats
+      if (token.uid) {
+        await connectToDatabase();
+        const dbUser = await User.findById(token.uid).select('experience totalPoints');
+        if (dbUser) {
+          token.experience = dbUser.experience;
+          token.totalPoints = dbUser.totalPoints;
+        }
       }
       return token
     },
     async session({ session, token }) {
       if (session.user && token.uid) {
         session.user.id = token.uid as string
+        session.user.experience = token.experience as number || 0
+        session.user.totalPoints = token.totalPoints as number || 0
       }
       return session
     },

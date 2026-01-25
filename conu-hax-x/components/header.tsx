@@ -14,7 +14,7 @@ export function Header() {
   const profileHref = user?.id ? `/profile/${user.id}` : null
 
   return (
-    <header 
+    <header
       className="sticky top-0 z-50 backdrop-blur-sm"
       style={{
         backgroundColor: 'rgba(30, 30, 46, 0.95)',
@@ -28,7 +28,7 @@ export function Header() {
             <Sword className="h-8 w-8 text-yellow-400 transition-transform group-hover:rotate-12" />
             <div className="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-yellow-400 animate-pulse" />
           </div>
-          <span 
+          <span
             className="font-[family-name:var(--font-display)] text-lg tracking-tight"
             style={{ color: '#fde047' }}
           >
@@ -52,7 +52,7 @@ export function Header() {
         </nav>
 
         <div className="flex items-center gap-3">
-          <div 
+          <div
             className="hidden sm:flex items-center gap-2 rounded-lg px-3 py-1.5"
             style={{
               backgroundColor: 'rgba(253, 224, 71, 0.2)',
@@ -60,7 +60,9 @@ export function Header() {
             }}
           >
             <Trophy className="h-4 w-4 text-yellow-400" />
-            <span className="text-sm font-medium text-yellow-400">2,450 XP</span>
+            <span className="text-sm font-medium text-yellow-400">
+              {session?.user?.experience ? session.user.experience.toLocaleString() : 0} XP
+            </span>
           </div>
           {user ? (
             <div className="flex items-center gap-2">
@@ -117,14 +119,14 @@ export function Header() {
   )
 }
 
-function NavLink({ 
-  href, 
-  children, 
-  icon 
-}: { 
+function NavLink({
+  href,
+  children,
+  icon
+}: {
   href: string
   children: React.ReactNode
-  icon: React.ReactNode 
+  icon: React.ReactNode
 }) {
   return (
     <Link
