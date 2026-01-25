@@ -1,9 +1,9 @@
 import mongoose, { Schema, Document } from "mongoose";
-import connectDB from "@/lib/mongodb";
+import { connectToDatabase } from "@/lib/mongodb";
 
 // Connect to database
 if (mongoose.connection.readyState === 0) {
-  connectDB();
+  connectToDatabase().catch(console.error);
 }
 
 export interface IAttempt extends Document {

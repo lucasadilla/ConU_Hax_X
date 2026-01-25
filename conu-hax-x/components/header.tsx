@@ -21,10 +21,10 @@ export function Header() {
         </Link>
 
         <nav className="hidden md:flex items-center gap-1">
-          <NavLink href="/" icon={<Scroll className="h-4 w-4" />}>
+          <NavLink href="/quests" icon={<Scroll className="h-4 w-4" />}>
             Quests
           </NavLink>
-          <NavLink href="#leaderboard" icon={<Trophy className="h-4 w-4" />}>
+          <NavLink href="/leaderboard" icon={<Trophy className="h-4 w-4" />}>
             Leaderboard
           </NavLink>
           <NavLink href="#streak" icon={<Flame className="h-4 w-4" />}>

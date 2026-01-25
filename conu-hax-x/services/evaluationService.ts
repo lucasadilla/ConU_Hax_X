@@ -11,6 +11,7 @@ import {
 } from '@/prompts/evaluateSolution';
 import BadgeService from './badgeService';
 import TicketService from './ticketService';
+import StreakService from './streakService';
 import mongoose from 'mongoose';
 
 export interface SubmitSolutionData {
@@ -106,6 +107,20 @@ export class EvaluationService {
               evaluation.score,
               ticket.title
             );
+          }
+
+          // Update daily streak
+          const streakUpdate = await StreakService.updateStreak(userId);
+          
+          // Log streak info
+          if (streakUpdate.streakIncreased) {
+            console.log(`🔥 User streak increased to ${streakUpdate.currentStreak} days`);
+          }
+          if (streakUpdate.streakBroken) {
+            console.log(`💔 User streak was broken, starting new streak`);
+          }
+          if (streakUpdate.milestoneReached) {
+            console.log(`🎉 Streak milestone reached: ${streakUpdate.milestoneReached.badgeName}`);
           }
         }
       }
