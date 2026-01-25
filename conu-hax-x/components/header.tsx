@@ -4,7 +4,7 @@ import React from "react"
 import { signIn, signOut, useSession } from "next-auth/react"
 
 import Link from "next/link"
-import { Sword, Trophy, Scroll, User, Flame, LogOut } from "lucide-react"
+import { Sword, Trophy, Scroll, User, Flame, LogOut, HelpCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
@@ -14,14 +14,24 @@ export function Header() {
   const profileHref = user?.id ? `/profile/${user.id}` : null
 
   return (
-    <header className="sticky top-0 z-50 border-b-4 border-primary bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60">
+    <header 
+      className="sticky top-0 z-50 backdrop-blur-sm"
+      style={{
+        backgroundColor: 'rgba(30, 30, 46, 0.95)',
+        borderBottom: '4px solid #fde047',
+        boxShadow: '0 4px 0 rgba(0,0,0,0.2)',
+      }}
+    >
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         <Link href="/" className="flex items-center gap-3 group">
           <div className="relative">
-            <Sword className="h-8 w-8 text-primary transition-transform group-hover:rotate-12" />
-            <div className="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-accent animate-pulse" />
+            <Sword className="h-8 w-8 text-yellow-400 transition-transform group-hover:rotate-12" />
+            <div className="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-yellow-400 animate-pulse" />
           </div>
-          <span className="font-[family-name:var(--font-display)] text-lg text-primary tracking-tight">
+          <span 
+            className="font-[family-name:var(--font-display)] text-lg tracking-tight"
+            style={{ color: '#fde047' }}
+          >
             CodeQuest
           </span>
         </Link>
@@ -30,18 +40,27 @@ export function Header() {
           <NavLink href="/quests" icon={<Scroll className="h-4 w-4" />}>
             Quests
           </NavLink>
-          <NavLink href="/#leaderboard" icon={<Trophy className="h-4 w-4" />}>
-            Leaderboard
+          <NavLink href="/badges" icon={<Trophy className="h-4 w-4" />}>
+            Badges
           </NavLink>
           <NavLink href="/#streak" icon={<Flame className="h-4 w-4" />}>
             Daily Streak
           </NavLink>
+          <NavLink href="/#faq" icon={<HelpCircle className="h-4 w-4" />}>
+            FAQ
+          </NavLink>
         </nav>
 
         <div className="flex items-center gap-3">
-          <div className="hidden sm:flex items-center gap-2 rounded-lg border-2 border-primary/30 bg-muted px-3 py-1.5">
-            <Trophy className="h-4 w-4 text-primary" />
-            <span className="text-sm font-medium text-primary">2,450 XP</span>
+          <div 
+            className="hidden sm:flex items-center gap-2 rounded-lg px-3 py-1.5"
+            style={{
+              backgroundColor: 'rgba(253, 224, 71, 0.2)',
+              border: '2px solid #fde047',
+            }}
+          >
+            <Trophy className="h-4 w-4 text-yellow-400" />
+            <span className="text-sm font-medium text-yellow-400">2,450 XP</span>
           </div>
           {user ? (
             <div className="flex items-center gap-2">
@@ -110,7 +129,7 @@ function NavLink({
   return (
     <Link
       href={href}
-      className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-primary hover:bg-muted rounded-lg"
+      className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-300 transition-colors hover:text-yellow-400 rounded-lg hover:bg-white/10"
     >
       {icon}
       {children}

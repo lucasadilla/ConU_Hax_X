@@ -2,6 +2,7 @@ import React from "react"
 import type { Metadata } from 'next'
 import { Press_Start_2P, JetBrains_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
+import { SkyBackground } from '@/components/SkyBackground'
 import './globals.css'
 import { AuthProvider } from '@/components/providers/auth-provider'
 

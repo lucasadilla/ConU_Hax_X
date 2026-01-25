@@ -37,19 +37,32 @@ const faqs = [
 
 export function FAQ() {
   return (
-    <section className="py-16">
+    <section id="faq" className="py-16" style={{ scrollMarginTop: '100px' }}>
       <div className="container mx-auto px-4">
         <div className="max-w-3xl mx-auto">
           {/* Header */}
           <div className="text-center mb-12">
-            <div className="inline-flex items-center gap-2 rounded-full border-2 border-primary/50 bg-card px-4 py-2 mb-4">
-              <HelpCircle className="h-4 w-4 text-primary" />
-              <span className="text-sm font-medium text-primary">Got Questions?</span>
+            <div 
+              className="inline-flex items-center gap-2 rounded-lg px-4 py-2 mb-4"
+              style={{
+                backgroundColor: 'rgba(30, 30, 46, 0.9)',
+                border: '3px solid #fde047',
+                boxShadow: '4px 4px 0 rgba(0,0,0,0.3)',
+              }}
+            >
+              <HelpCircle className="h-4 w-4 text-yellow-400" />
+              <span className="text-sm font-medium text-yellow-400">Got Questions?</span>
             </div>
-            <h2 className="font-[family-name:var(--font-display)] text-2xl md:text-3xl text-primary mb-4">
+            <h2 
+              className="font-[family-name:var(--font-display)] text-2xl md:text-3xl mb-4"
+              style={{ 
+                color: '#1e1e2e',
+                textShadow: '2px 2px 0 #fde047',
+              }}
+            >
               Frequently Asked Questions
             </h2>
-            <p className="text-muted-foreground">
+            <p className="text-slate-700 font-medium">
               Everything you need to know about your coding adventure
             </p>
           </div>
@@ -60,12 +73,17 @@ export function FAQ() {
               <AccordionItem 
                 key={index} 
                 value={`item-${index}`}
-                className="rounded-xl border-2 border-border bg-card px-6 data-[state=open]:border-primary transition-colors"
+                className="rounded-xl px-6 transition-colors overflow-hidden"
+                style={{
+                  backgroundColor: 'rgba(30, 30, 46, 0.9)',
+                  border: '3px solid #1e1e2e',
+                  boxShadow: '4px 4px 0 rgba(0,0,0,0.3)',
+                }}
               >
-                <AccordionTrigger className="text-left font-medium text-foreground hover:text-primary py-4 hover:no-underline">
+                <AccordionTrigger className="text-left font-medium text-white hover:text-yellow-400 py-4 hover:no-underline">
                   {faq.question}
                 </AccordionTrigger>
-                <AccordionContent className="text-muted-foreground pb-4 leading-relaxed">
+                <AccordionContent className="text-slate-300 pb-4 leading-relaxed">
                   {faq.answer}
                 </AccordionContent>
               </AccordionItem>
