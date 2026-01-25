@@ -25,7 +25,7 @@ export function Footer() {
             <h4 className="font-medium text-foreground mb-4">Quests</h4>
             <ul className="space-y-2">
               <FooterLink href="/quests">All Quests</FooterLink>
-              <FooterLink href="/leaderboard">Leaderboard</FooterLink>
+              <FooterLink href="#leaderboard">Leaderboard</FooterLink>
             </ul>
           </div>
         </div>
