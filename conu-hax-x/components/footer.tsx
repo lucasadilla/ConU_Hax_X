@@ -20,10 +20,10 @@ export function Footer() {
             <Link href="/quests" className="text-muted-foreground hover:text-primary transition-colors">
               Quests
             </Link>
-            <Link href="#leaderboard" className="text-muted-foreground hover:text-primary transition-colors">
+            <Link href="/#leaderboard" className="text-muted-foreground hover:text-primary transition-colors">
               Leaderboard
             </Link>
-            <Link href="#streak" className="text-muted-foreground hover:text-primary transition-colors">
+            <Link href="/#streak" className="text-muted-foreground hover:text-primary transition-colors">
               Daily Streak
             </Link>
           </nav>
