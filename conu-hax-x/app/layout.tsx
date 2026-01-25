@@ -3,6 +3,7 @@ import type { Metadata } from 'next'
 import { Press_Start_2P, JetBrains_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import './globals.css'
+import { AuthProvider } from '@/components/providers/auth-provider'
 
 const pressStart = Press_Start_2P({ 
   weight: '400',
@@ -27,7 +28,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body className={`${pressStart.variable} ${jetbrainsMono.variable} font-mono antialiased dark:bg-background`}>
-        {children}
+        <AuthProvider>{children}</AuthProvider>
         <Analytics />
       </body>
     </html>
