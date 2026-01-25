@@ -190,7 +190,7 @@ export function QuestMap({ questId, questTitle, stages, userProgress }: QuestMap
                           : (stage.ticketId as any)?._id?.toString?.() ??
                             (stage.ticketId as any)?.id?.toString?.() ??
                             ''
-                      }`}
+                      }?questId=${questId}&stageIndex=${Math.max(0, stage.order - 1)}`}
                     >
                       <Button
                         size="sm"

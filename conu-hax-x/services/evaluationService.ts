@@ -4,6 +4,7 @@ import Attempt, { IAttempt, ITestResult } from '@/models/Attempt';
 import Ticket from '@/models/Ticket';
 import User from '@/models/User';
 import { generateWithContext } from '@/lib/gemini';
+import { runTests } from '@/lib/runner';
 import {
   EVALUATE_SOLUTION_SYSTEM_PROMPT,
   evaluateSolutionPrompt,
@@ -42,6 +43,7 @@ export class EvaluationService {
     const attempt = await Attempt.create({
       userId,
       ticketId,
+      solution: code,
       code,
       language,
       timeSpent,
@@ -50,13 +52,19 @@ export class EvaluationService {
 
     try {
       // Run test cases (simplified - in production, use sandbox)
-      const testResults = await this.runTestCases(code, ticket.testCases, language);
+      const testResults = await this.runTestCases(
+        code,
+        ticket.testCases,
+        language,
+        ticket.solutionCode || undefined,
+        ticket.validationCode || undefined
+      );
       attempt.testResults = testResults;
 
       // Calculate basic score from tests
       const passedTests = testResults.filter(r => r.passed).length;
       const totalTests = testResults.length;
-      const testScore = (passedTests / totalTests) * 100;
+      const testScore = totalTests > 0 ? (passedTests / totalTests) * 100 : 0;
 
       // Get AI evaluation
       const testResultsData = {
@@ -65,26 +73,40 @@ export class EvaluationService {
         total: totalTests,
       };
 
-      const prompt = evaluateSolutionPrompt(
-        ticket.description,
-        code,
-        language,
-        testResultsData
-      );
+      let evaluation: any = null;
 
-      const response = await generateWithContext(
-        EVALUATE_SOLUTION_SYSTEM_PROMPT,
-        prompt
-      );
+      try {
+        const prompt = evaluateSolutionPrompt(
+          ticket.description,
+          code,
+          language,
+          testResultsData
+        );
 
-      // Parse evaluation
-      const jsonMatch = response.match(/```json\n([\s\S]*?)\n```/) || response.match(/```\n([\s\S]*?)\n```/);
-      const jsonText = jsonMatch ? jsonMatch[1] : response;
-      const evaluation = JSON.parse(jsonText);
+        const response = await generateWithContext(
+          EVALUATE_SOLUTION_SYSTEM_PROMPT,
+          prompt
+        );
+
+        const jsonMatch = response.match(/```json\n([\s\S]*?)\n```/) || response.match(/```\n([\s\S]*?)\n```/);
+        const jsonText = jsonMatch ? jsonMatch[1] : response;
+        evaluation = JSON.parse(jsonText);
+      } catch (error) {
+        const passed = totalTests > 0 ? passedTests === totalTests : false;
+        evaluation = {
+          score: Math.round(testScore),
+          passed,
+          feedback: 'Auto-evaluated based on tests (AI evaluation unavailable).',
+        };
+      }
+
+      const testsPassed = totalTests > 0 && passedTests === totalTests;
+      const normalizedScore = typeof evaluation?.score === 'number' ? evaluation.score : Math.round(testScore);
+      const normalizedPassed = testsPassed || evaluation?.passed === true;
 
       attempt.evaluation = evaluation;
-      attempt.score = evaluation.score;
-      attempt.passed = evaluation.passed;
+      attempt.score = normalizedScore;
+      attempt.passed = normalizedPassed;
       attempt.status = 'completed';
 
       await attempt.save();
@@ -93,10 +115,25 @@ export class EvaluationService {
       await TicketService.updateTicketStats(ticketId, evaluation.score, evaluation.passed);
 
       // Update user stats if passed
-      if (evaluation.passed) {
+      const alreadyPassed = await Attempt.findOne({
+        userId,
+        ticketId,
+        passed: true,
+        _id: { $ne: attempt._id },
+      });
+
+      const alreadyPassed = await Attempt.findOne({
+        userId,
+        ticketId,
+        passed: true,
+        _id: { $ne: attempt._id },
+      });
+
+      if (attempt.passed && !alreadyPassed) {
         const user = await User.findById(userId);
         if (user) {
-          user.completeTicket(ticket.points);
+          const pointsAwarded = ticket.points && ticket.points > 0 ? ticket.points : 0;
+          user.completeTicket(pointsAwarded);
           await user.save();
 
           // Award badge (always, regardless of wallet connection)
@@ -170,40 +207,11 @@ export class EvaluationService {
   private static async runTestCases(
     code: string,
     testCases: any[],
-    language: string
+    language: string,
+    referenceCode?: string,
+    validationCode?: string
   ): Promise<ITestResult[]> {
-    // This is a simplified version
-    // In production, use a secure sandbox environment
-    const results: ITestResult[] = [];
-
-    for (let i = 0; i < testCases.length; i++) {
-      const testCase = testCases[i];
-      
-      try {
-        // Simplified test execution
-        // In production, use docker/vm sandbox
-        const passed = Math.random() > 0.3; // Simulate test results
-        
-        results.push({
-          testCaseIndex: i,
-          passed,
-          input: testCase.input,
-          expectedOutput: testCase.expectedOutput,
-          actualOutput: passed ? testCase.expectedOutput : 'Different output',
-        });
-      } catch (error) {
-        results.push({
-          testCaseIndex: i,
-          passed: false,
-          input: testCase.input,
-          expectedOutput: testCase.expectedOutput,
-          actualOutput: '',
-          error: error instanceof Error ? error.message : 'Unknown error',
-        });
-      }
-    }
-
-    return results;
+    return runTests({ code, language, testCases, referenceCode, validationCode }) as Promise<ITestResult[]>;
   }
 
   /**

@@ -30,6 +30,9 @@ export interface IUser extends Document {
   preferredLanguage: string;
   difficulty: 'easy' | 'medium' | 'hard';
 
+  // Wallet
+  phantomWalletAddress?: string;
+
   // Timestamps
   createdAt: Date;
   updatedAt: Date;
@@ -138,6 +141,12 @@ const UserSchema = new Schema<IUser>(
       enum: ['easy', 'medium', 'hard'],
     },
 
+    phantomWalletAddress: {
+      type: String,
+      default: null,
+      trim: true,
+    },
+
     lastActiveAt: {
       type: Date,
       default: Date.now,
@@ -170,11 +179,6 @@ UserSchema.methods.addPoints = function (points: number) {
 UserSchema.methods.completeTicket = function (points: number) {
   this.ticketsCompleted += 1;
   this.addPoints(points);
-  this.currentStreak += 1;
-
-  if (this.currentStreak > this.longestStreak) {
-    this.longestStreak = this.currentStreak;
-  }
 };
 
 UserSchema.methods.resetStreak = function () {

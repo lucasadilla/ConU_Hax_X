@@ -7,6 +7,8 @@ import { Card } from "@/components/ui/card"
 import { Trophy, Clock, Target, ArrowLeft } from "lucide-react"
 import Link from "next/link"
 import QuestService from "@/services/questService"
+import { getServerSession } from "next-auth"
+import { authOptions } from "@/app/auth"
 
 interface QuestPageProps {
   params: Promise<{ id: string }>
@@ -14,12 +16,18 @@ interface QuestPageProps {
 
 export default async function QuestPage({ params }: QuestPageProps) {
   const { id } = await params
+  const session = await getServerSession(authOptions)
   
   let quest = null
   let error = null
+  let userProgress = null
   
   try {
     quest = await QuestService.getQuestById(id)
+    if (session?.user?.id && quest) {
+      const progress = await QuestService.getUserQuestProgress(session.user.id, id)
+      userProgress = progress?.[0] || null
+    }
   } catch (err) {
     error = err instanceof Error ? err.message : 'Failed to load quest'
   }
@@ -191,6 +199,18 @@ export default async function QuestPage({ params }: QuestPageProps) {
                 unlocked: index === 0, // TODO: Check user progress
               }
             })}
+            userProgress={
+              userProgress
+                ? {
+                    currentStage: userProgress.currentStage,
+                    completedStages: userProgress.completedStages,
+                    stageScores: userProgress.stageScores.map((score) => ({
+                      stageIndex: score.stageIndex,
+                      score: score.score,
+                    })),
+                  }
+                : undefined
+            }
           />
         </Card>
 

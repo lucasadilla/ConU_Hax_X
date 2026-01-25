@@ -3,6 +3,7 @@ import { connectToDatabase } from '@/lib/mongodb';
 import Quest, { UserQuestProgress, IQuest, IUserQuestProgress, QuestTheme } from '@/models/Quest';
 import Ticket from '@/models/Ticket';
 import Badge from '@/models/Badge';
+import User from '@/models/User';
 import { generateWithContext } from '@/lib/gemini';
 import {
   GENERATE_QUEST_SYSTEM_PROMPT,
@@ -183,6 +184,13 @@ export class QuestService {
 
         progress.badgeAwarded = true;
         progress.badgeId = badge._id;
+
+        const user = await User.findById(userId);
+        if (user) {
+          user.badges.push(badge._id);
+          user.addPoints(quest.badgePoints);
+          await user.save();
+        }
 
         // Update quest stats
         quest.completionCount += 1;
