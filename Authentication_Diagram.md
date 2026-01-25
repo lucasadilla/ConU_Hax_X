@@ -1,4 +1,5 @@
-sequenceDiagram
+```mermaid
+  sequenceDiagram
   participant Browser as User (Browser)
   participant App as Client App (SessionProvider)
   participant Provider as OAuth Provider (Google/GitHub)
@@ -19,3 +20,4 @@ sequenceDiagram
   NextAuth->>App: session callback copies token.uid -> session.user.id
   App->>Browser: SessionProvider exposes session to useSession()
   Browser->>App: UI shows authenticated state (avatar, profile link)
+```
