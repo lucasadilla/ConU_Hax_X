@@ -28,16 +28,27 @@ export async function GET(request: NextRequest) {
       .populate("ticketId")
       .sort({ createdAt: -1 });
 
-    // Map to badge status info
-    const badges = attempts.map((attempt) => ({
-      ticketId: attempt.ticketId._id.toString(),
-      ticketName: attempt.ticketId.title,
-      badgeEarned: attempt.badgeEarned,
-      nftMinted: !!attempt.nftAddress,
-      nftAddress: attempt.nftAddress || null,
-      nftMintedAt: attempt.nftMintedAt || null,
-      completedAt: attempt.createdAt,
-    }));
+    // Deduplicate: Only one badge record per ticket
+    const uniqueBadgesMap = new Map();
+
+    attempts.forEach((attempt) => {
+      const tid = attempt.ticketId?._id?.toString() || attempt.ticketId?.toString();
+      if (!tid) return;
+
+      if (!uniqueBadgesMap.has(tid)) {
+        uniqueBadgesMap.set(tid, {
+          ticketId: tid,
+          ticketName: attempt.ticketId.title || "Challenge",
+          badgeEarned: attempt.badgeEarned,
+          nftMinted: !!attempt.nftAddress,
+          nftAddress: attempt.nftAddress || null,
+          nftMintedAt: attempt.nftMintedAt || null,
+          completedAt: attempt.createdAt,
+        });
+      }
+    });
+
+    const badges = Array.from(uniqueBadgesMap.values());
 
     return NextResponse.json({
       success: true,

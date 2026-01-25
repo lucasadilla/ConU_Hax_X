@@ -13,37 +13,37 @@ export interface IQuestStage {
 
 export interface IQuest extends Document {
   _id: mongoose.Types.ObjectId;
-  
+
   // Quest Info
   title: string;
   description: string;
   theme: QuestTheme;
   iconEmoji: string;
-  
+
   // Map Progression (3 stages)
   stages: IQuestStage[];
-  
+
   // Badge Reward
   badgeName: string;
   badgeDescription: string;
   badgePoints: number;
   badgeColor: string;
-  
+
   // Metadata
   estimatedTime: number; // total minutes for all 3 stages
   tags: string[];
-  
+
   // Statistics
   attemptCount: number;
   completionCount: number;
   averageCompletionTime: number;
-  
+
   // Status
   isActive: boolean;
-  
+
   // Tech Stack (always the same for this project)
   techStack: string[];
-  
+
   createdAt: Date;
   updatedAt: Date;
 }
@@ -52,27 +52,27 @@ export interface IUserQuestProgress extends Document {
   _id: mongoose.Types.ObjectId;
   userId: mongoose.Types.ObjectId;
   questId: mongoose.Types.ObjectId;
-  
+
   // Progress tracking
   currentStage: number; // 0, 1, 2 (corresponds to stages array)
   completedStages: number[]; // Array of completed stage indices
-  
+
   // Completion
   isCompleted: boolean;
   completedAt?: Date;
   totalTimeSpent: number; // in seconds
-  
+
   // Badge
   badgeAwarded: boolean;
   badgeId?: mongoose.Types.ObjectId;
-  
+
   // Scores for each stage
   stageScores: {
     stageIndex: number;
     score: number;
     attemptId: mongoose.Types.ObjectId;
   }[];
-  
+
   createdAt: Date;
   updatedAt: Date;
 }
@@ -122,18 +122,18 @@ const QuestSchema = new Schema<IQuest>(
       type: String,
       default: '🎯',
     },
-    
+
     // Map Progression
     stages: {
       type: [QuestStageSchema],
       validate: {
-        validator: function(stages: IQuestStage[]) {
+        validator: function (stages: IQuestStage[]) {
           return stages.length === 3;
         },
         message: 'Quest must have exactly 3 stages',
       },
     },
-    
+
     // Badge Reward
     badgeName: {
       type: String,
@@ -153,7 +153,7 @@ const QuestSchema = new Schema<IQuest>(
       type: String,
       default: '#FFD700',
     },
-    
+
     // Metadata
     estimatedTime: {
       type: Number,
@@ -164,7 +164,7 @@ const QuestSchema = new Schema<IQuest>(
       type: [String],
       default: [],
     },
-    
+
     // Statistics
     attemptCount: {
       type: Number,
@@ -181,12 +181,12 @@ const QuestSchema = new Schema<IQuest>(
       default: 0,
       min: 0,
     },
-    
+
     isActive: {
       type: Boolean,
       default: true,
     },
-    
+
     techStack: {
       type: [String],
       default: ['Next.js', 'TypeScript', 'Node.js', 'TailwindCSS', 'MongoDB'],
@@ -202,7 +202,7 @@ QuestSchema.index({ theme: 1, isActive: 1 });
 QuestSchema.index({ createdAt: -1 });
 
 // Methods
-QuestSchema.methods.getCompletionRate = function(): number {
+QuestSchema.methods.getCompletionRate = function (): number {
   if (this.attemptCount === 0) return 0;
   return (this.completionCount / this.attemptCount) * 100;
 };
@@ -222,7 +222,7 @@ const UserQuestProgressSchema = new Schema<IUserQuestProgress>(
       required: true,
       index: true,
     },
-    
+
     currentStage: {
       type: Number,
       default: 0,
@@ -233,7 +233,7 @@ const UserQuestProgressSchema = new Schema<IUserQuestProgress>(
       type: [Number],
       default: [],
     },
-    
+
     isCompleted: {
       type: Boolean,
       default: false,
@@ -246,7 +246,7 @@ const UserQuestProgressSchema = new Schema<IUserQuestProgress>(
       default: 0,
       min: 0,
     },
-    
+
     badgeAwarded: {
       type: Boolean,
       default: false,
@@ -255,7 +255,7 @@ const UserQuestProgressSchema = new Schema<IUserQuestProgress>(
       type: Schema.Types.ObjectId,
       ref: 'Badge',
     },
-    
+
     stageScores: [{
       stageIndex: {
         type: Number,
@@ -282,7 +282,7 @@ UserQuestProgressSchema.index({ userId: 1, questId: 1 }, { unique: true });
 UserQuestProgressSchema.index({ userId: 1, isCompleted: 1 });
 
 // Methods
-UserQuestProgressSchema.methods.completeStage = function(
+UserQuestProgressSchema.methods.completeStage = function (
   stageIndex: number,
   score: number,
   attemptId: mongoose.Types.ObjectId
@@ -290,7 +290,7 @@ UserQuestProgressSchema.methods.completeStage = function(
   if (!this.completedStages.includes(stageIndex)) {
     this.completedStages.push(stageIndex);
     this.stageScores.push({ stageIndex, score, attemptId });
-    
+
     // Move to next stage if not at the end
     if (stageIndex < 2) {
       this.currentStage = stageIndex + 1;
@@ -302,22 +302,15 @@ UserQuestProgressSchema.methods.completeStage = function(
   }
 };
 
-UserQuestProgressSchema.methods.getAverageScore = function(): number {
+UserQuestProgressSchema.methods.getAverageScore = function (): number {
   if (this.stageScores.length === 0) return 0;
-  const total = this.stageScores.reduce((sum, stage) => sum + stage.score, 0);
+  const total = this.stageScores.reduce((sum: number, stage: any) => sum + stage.score, 0);
   return total / this.stageScores.length;
 };
 
-// Delete existing models if they exist
-if (mongoose.models.Quest) {
-  delete mongoose.models.Quest;
-}
-if (mongoose.models.UserQuestProgress) {
-  delete mongoose.models.UserQuestProgress;
-}
-
-const Quest: Model<IQuest> = mongoose.model<IQuest>('Quest', QuestSchema);
-const UserQuestProgress: Model<IUserQuestProgress> = mongoose.model<IUserQuestProgress>(
+// Define models
+const Quest = mongoose.models.Quest || mongoose.model<IQuest>('Quest', QuestSchema);
+const UserQuestProgress = mongoose.models.UserQuestProgress || mongoose.model<IUserQuestProgress>(
   'UserQuestProgress',
   UserQuestProgressSchema
 );

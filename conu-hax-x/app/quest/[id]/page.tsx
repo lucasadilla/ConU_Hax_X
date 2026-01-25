@@ -7,6 +7,9 @@ import { Card } from "@/components/ui/card"
 import { Trophy, Clock, Target, ArrowLeft } from "lucide-react"
 import Link from "next/link"
 import QuestService from "@/services/questService"
+import { getServerSession } from "next-auth/next"
+import { authOptions } from "@/app/auth"
+import { UserQuestProgress } from "@/models/Quest"
 
 interface QuestPageProps {
   params: Promise<{ id: string }>
@@ -14,12 +17,21 @@ interface QuestPageProps {
 
 export default async function QuestPage({ params }: QuestPageProps) {
   const { id } = await params
-  
+
   let quest = null
+  let progress = null
   let error = null
-  
+
   try {
+    const session = await getServerSession(authOptions)
     quest = await QuestService.getQuestById(id)
+
+    if (session?.user?.id && quest) {
+      progress = await UserQuestProgress.findOne({
+        userId: session.user.id,
+        questId: quest._id
+      })
+    }
   } catch (err) {
     error = err instanceof Error ? err.message : 'Failed to load quest'
   }
@@ -29,7 +41,7 @@ export default async function QuestPage({ params }: QuestPageProps) {
       <div className="min-h-screen">
         <Header />
         <main className="container mx-auto px-4 py-12">
-          <div 
+          <div
             className="text-center p-8 rounded-xl max-w-md mx-auto"
             style={{
               backgroundColor: 'rgba(30, 30, 46, 0.9)',
@@ -37,9 +49,9 @@ export default async function QuestPage({ params }: QuestPageProps) {
               boxShadow: '6px 6px 0 rgba(0,0,0,0.3)',
             }}
           >
-            <h1 
+            <h1
               className="text-2xl font-display mb-4"
-              style={{ 
+              style={{
                 color: '#fde047',
                 textShadow: '2px 2px 0 rgba(0,0,0,0.5)',
               }}
@@ -85,12 +97,12 @@ export default async function QuestPage({ params }: QuestPageProps) {
   return (
     <div className="min-h-screen">
       <Header />
-      
+
       <main className="container mx-auto px-4 py-12">
         {/* Back Button */}
         <Link href="/quests" className="inline-block mb-6">
-          <Button 
-            variant="ghost" 
+          <Button
+            variant="ghost"
             size="sm"
             className="transition-all hover:-translate-y-0.5"
             style={{
@@ -105,7 +117,7 @@ export default async function QuestPage({ params }: QuestPageProps) {
         </Link>
 
         {/* Quest Header */}
-        <div 
+        <div
           className="rounded-xl p-8 mb-8"
           style={{
             backgroundColor: themeStyles[quest.theme].backgroundColor,
@@ -116,9 +128,9 @@ export default async function QuestPage({ params }: QuestPageProps) {
           <div className="flex items-start gap-4 mb-4">
             <span className="text-6xl">{quest.iconEmoji}</span>
             <div className="flex-1">
-              <h1 
+              <h1
                 className="font-display text-2xl md:text-3xl mb-2"
-                style={{ 
+                style={{
                   color: '#fde047',
                   textShadow: '2px 2px 0 rgba(0,0,0,0.5)',
                 }}
@@ -128,12 +140,12 @@ export default async function QuestPage({ params }: QuestPageProps) {
               <p className="text-white mb-4">
                 {quest.description}
               </p>
-              
+
               {/* Tech Stack */}
               <div className="flex flex-wrap gap-2 mb-4">
                 {quest.techStack.map((tech) => (
-                  <Badge 
-                    key={tech} 
+                  <Badge
+                    key={tech}
                     className="font-mono text-xs"
                     style={{
                       backgroundColor: 'rgba(30, 30, 46, 0.7)',
@@ -166,7 +178,7 @@ export default async function QuestPage({ params }: QuestPageProps) {
         </div>
 
         {/* Quest Map with Stages */}
-        <Card 
+        <Card
           className="p-8 mb-8"
           style={{
             backgroundColor: 'rgba(253, 224, 71, 0.1)',
@@ -177,6 +189,14 @@ export default async function QuestPage({ params }: QuestPageProps) {
           <QuestMap
             questId={quest._id.toString()}
             questTitle={quest.title}
+            userProgress={progress ? {
+              currentStage: progress.currentStage,
+              completedStages: progress.completedStages,
+              stageScores: progress.stageScores.map((s: any) => ({
+                stageIndex: s.stageIndex,
+                score: s.score
+              }))
+            } : undefined}
             stages={quest.stages.map((stage, index) => {
               const rawTicketId: any = stage.ticketId
               const resolvedTicketId =
@@ -184,18 +204,22 @@ export default async function QuestPage({ params }: QuestPageProps) {
                   ? rawTicketId
                   : rawTicketId?._id?.toString?.() ?? rawTicketId?.id?.toString?.()
 
+              const isAlreadyCompleted = progress?.completedStages?.includes(index) || false;
+              const isFirstUnsolved = index === (progress?.completedStages?.length || 0);
+              const isUnlocked = isAlreadyCompleted || isFirstUnsolved;
+
               return {
                 difficulty: stage.difficulty,
                 ticketId: resolvedTicketId || '',
                 order: stage.order,
-                unlocked: index === 0, // TODO: Check user progress
+                unlocked: isUnlocked,
               }
             })}
           />
         </Card>
 
         {/* Badge Reward */}
-        <Card 
+        <Card
           className="p-8"
           style={{
             backgroundColor: 'rgba(253, 224, 71, 0.15)',
@@ -204,7 +228,7 @@ export default async function QuestPage({ params }: QuestPageProps) {
           }}
         >
           <div className="flex items-center gap-4">
-            <div 
+            <div
               className="w-16 h-16 rounded-full flex items-center justify-center"
               style={{
                 backgroundColor: 'rgba(253, 224, 71, 0.2)',
@@ -214,9 +238,9 @@ export default async function QuestPage({ params }: QuestPageProps) {
               <Trophy className="w-8 h-8 text-yellow-400" />
             </div>
             <div className="flex-1">
-              <h3 
+              <h3
                 className="text-xl font-display mb-1"
-                style={{ 
+                style={{
                   color: '#fde047',
                   textShadow: '2px 2px 0 rgba(0,0,0,0.5)',
                 }}

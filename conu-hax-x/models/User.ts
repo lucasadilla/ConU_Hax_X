@@ -181,11 +181,7 @@ UserSchema.methods.resetStreak = function () {
   this.currentStreak = 0;
 };
 
-// Delete existing model if it exists (for hot reload)
-if (mongoose.models.User) {
-  delete mongoose.models.User;
-}
-
-const User: Model<IUser> = mongoose.model<IUser>('User', UserSchema);
+// Use existing model if it exists, otherwise create it
+const User = mongoose.models.User || mongoose.model<IUser>('User', UserSchema);
 
 export default User;

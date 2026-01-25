@@ -4,30 +4,30 @@ import mongoose, { Schema, Document, Model } from 'mongoose';
 export interface IBadge extends Document {
   _id: mongoose.Types.ObjectId;
   userId: mongoose.Types.ObjectId;
-  
+
   // Badge Info
   name: string;
   description: string;
   type: 'bronze' | 'silver' | 'gold' | 'platinum' | 'special';
   category: 'completion' | 'streak' | 'score' | 'speed' | 'special';
-  
+
   // Achievement
   achievedFor: string; // What this badge was earned for
   ticketId?: mongoose.Types.ObjectId; // If earned for a specific ticket
-  
+
   // Metadata
   iconUrl?: string;
   color: string;
   rarity: 'common' | 'rare' | 'epic' | 'legendary';
-  
+
   // Blockchain (Solana NFT)
   isMinted: boolean;
   mintAddress?: string;
   transactionSignature?: string;
-  
+
   // Points
   pointsAwarded: number;
-  
+
   // Timestamps
   awardedAt: Date;
   createdAt: Date;
@@ -42,7 +42,7 @@ const BadgeSchema = new Schema<IBadge>(
       required: true,
       index: true,
     },
-    
+
     // Badge Info
     name: {
       type: String,
@@ -67,7 +67,7 @@ const BadgeSchema = new Schema<IBadge>(
       enum: ['completion', 'streak', 'score', 'speed', 'special'],
       default: 'completion',
     },
-    
+
     // Achievement
     achievedFor: {
       type: String,
@@ -77,7 +77,7 @@ const BadgeSchema = new Schema<IBadge>(
       type: Schema.Types.ObjectId,
       ref: 'Ticket',
     },
-    
+
     // Metadata
     iconUrl: {
       type: String,
@@ -91,7 +91,7 @@ const BadgeSchema = new Schema<IBadge>(
       enum: ['common', 'rare', 'epic', 'legendary'],
       default: 'common',
     },
-    
+
     // Blockchain (Solana NFT)
     isMinted: {
       type: Boolean,
@@ -103,7 +103,7 @@ const BadgeSchema = new Schema<IBadge>(
     transactionSignature: {
       type: String,
     },
-    
+
     // Points
     pointsAwarded: {
       type: Number,
@@ -111,7 +111,7 @@ const BadgeSchema = new Schema<IBadge>(
       min: 0,
       default: 100,
     },
-    
+
     awardedAt: {
       type: Date,
       default: Date.now,
@@ -130,7 +130,7 @@ BadgeSchema.index({ rarity: 1 });
 BadgeSchema.index({ isMinted: 1 });
 
 // Statics for badge creation
-BadgeSchema.statics.createCompletionBadge = async function(
+BadgeSchema.statics.createCompletionBadge = async function (
   userId: mongoose.Types.ObjectId,
   ticketId: mongoose.Types.ObjectId,
   score: number,
@@ -138,7 +138,7 @@ BadgeSchema.statics.createCompletionBadge = async function(
 ) {
   const type = score >= 90 ? 'gold' : score >= 75 ? 'silver' : 'bronze';
   const rarity = score >= 95 ? 'legendary' : score >= 85 ? 'epic' : score >= 70 ? 'rare' : 'common';
-  
+
   return this.create({
     userId,
     ticketId,
@@ -153,13 +153,13 @@ BadgeSchema.statics.createCompletionBadge = async function(
   });
 };
 
-BadgeSchema.statics.createStreakBadge = async function(
+BadgeSchema.statics.createStreakBadge = async function (
   userId: mongoose.Types.ObjectId,
   streakCount: number
 ) {
   const type = streakCount >= 30 ? 'platinum' : streakCount >= 14 ? 'gold' : streakCount >= 7 ? 'silver' : 'bronze';
   const rarity = streakCount >= 30 ? 'legendary' : streakCount >= 14 ? 'epic' : 'rare';
-  
+
   return this.create({
     userId,
     name: `${streakCount}-Day Streak`,
@@ -173,11 +173,7 @@ BadgeSchema.statics.createStreakBadge = async function(
   });
 };
 
-// Delete existing model if it exists
-if (mongoose.models.Badge) {
-  delete mongoose.models.Badge;
-}
-
-const Badge: Model<IBadge> = mongoose.model<IBadge>('Badge', BadgeSchema);
+// Use existing model if it exists, otherwise create it
+const Badge = mongoose.models.Badge || mongoose.model<IBadge>('Badge', BadgeSchema);
 
 export default Badge;

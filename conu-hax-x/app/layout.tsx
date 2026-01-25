@@ -5,13 +5,14 @@ import { Analytics } from '@vercel/analytics/next'
 import { SkyBackground } from '@/components/SkyBackground'
 import './globals.css'
 import { AuthProvider } from '@/components/providers/auth-provider'
+import { Toaster } from '@/components/ui/sonner'
 
-const pressStart = Press_Start_2P({ 
+const pressStart = Press_Start_2P({
   weight: '400',
   subsets: ["latin"],
   variable: '--font-display'
 });
-const jetbrainsMono = JetBrains_Mono({ 
+const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
   variable: '--font-mono'
 });

@@ -72,9 +72,9 @@ export function UserBadgesDisplay({ userId }: UserBadgesDisplayProps) {
 
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-      {badges.map((badge) => (
+      {badges.map((badge, idx) => (
         <div
-          key={badge.ticketId}
+          key={`${badge.ticketId}-${idx}`}
           className="group relative p-4 rounded-lg text-center hover:scale-105 hover:-translate-y-1 transition-all cursor-pointer"
           style={{
             backgroundColor: 'rgba(253, 224, 71, 0.1)',
