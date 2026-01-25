@@ -119,11 +119,9 @@ export default function TicketPage() {
   // Handle Run (visible tests only)
   const handleRun = useCallback(async (files: EditorFile[]) => {
     setIsRunning(true)
-    setConsoleOutputs([
-      { type: 'info', message: 'Running tests...' },
-    ])
+    setConsoleOutputs([{ type: 'info', message: 'Running visible tests...' }])
 
-    await new Promise((resolve) => setTimeout(resolve, 800))
+    await new Promise((resolve) => setTimeout(resolve, 500))
 
     if (visibleTestCases.length === 0) {
       setConsoleOutputs([
@@ -134,42 +132,84 @@ export default function TicketPage() {
       return
     }
 
-    const outputs: ConsoleOutput[] = [{ type: 'info', message: 'Running tests...' }]
+    const outputs: ConsoleOutput[] = [{ type: 'info', message: 'Running visible tests...' }]
 
-    visibleTestCases.forEach((testCase, index) => {
-      outputs.push({
-        type: 'log',
-        message: `> Test Case ${index + 1}: input = ${testCase.input}`,
-      })
-      outputs.push({
-        type: 'log',
-        message: `Expected Output: ${testCase.expectedOutput}`,
-      })
-      outputs.push({
-        type: 'success',
-        message: '✓ Test case registered (sandbox execution not configured)',
-      })
-    })
+    // Find the primary code file (assuming first non-readonly or specifically named one)
+    const primaryFile = files.find(f => !f.readOnly) || files[0]
+    if (!primaryFile) {
+      outputs.push({ type: 'error', message: 'Error: No code files found to run.' })
+      setConsoleOutputs(outputs)
+      setIsRunning(false)
+      return
+    }
 
-    outputs.push({ type: 'log', message: '' })
-    outputs.push({
-      type: 'success',
-      message: `${visibleTestCases.length}/${visibleTestCases.length} test cases processed`,
-    })
+    try {
+      // Simple client-side runner
+      // We wrap the code in a function to isolate it slightly and avoid global pollution
+      // This is a naive implementation for the prototype
+      const userCode = primaryFile.content
+
+      // Extract function name if possible or assume default exported function
+      // For these simple challenges, we'll try to find a function declaration
+      const functionMatch = userCode.match(/function\s+(\w+)/)
+      const functionName = functionMatch ? functionMatch[1] : null
+
+      if (!functionName) {
+        throw new Error('Could not find a function to test. Please ensure you defined a function.')
+      }
+
+      // Prepare execution context
+      // We'll use Function constructor for a bit better isolation than eval
+      const runTest = new Function('input', `
+            ${userCode}
+            try {
+                const args = JSON.parse(input);
+                return ${functionName}(...args);
+            } catch (e) {
+                throw new Error('Execution error: ' + e.message);
+            }
+        `)
+
+      let passed = 0
+      visibleTestCases.forEach((testCase, index) => {
+        outputs.push({ type: 'log', message: `> Test Case ${index + 1}: input = ${testCase.input}` })
+
+        try {
+          const result = runTest(testCase.input)
+          const actual = JSON.stringify(result)
+          const expected = testCase.expectedOutput
+
+          if (actual === expected || result.toString() === expected) {
+            outputs.push({ type: 'success', message: `  ✓ Passed (Result: ${actual})` })
+            passed++
+          } else {
+            outputs.push({ type: 'error', message: `  ✗ Failed (Expected: ${expected}, Got: ${actual})` })
+          }
+        } catch (err: any) {
+          outputs.push({ type: 'error', message: `  ⚠ ${err.message}` })
+        }
+      })
+
+      outputs.push({ type: 'log', message: '' })
+      outputs.push({
+        type: passed === visibleTestCases.length ? 'success' : 'error',
+        message: `${passed}/${visibleTestCases.length} visible test cases passed`,
+      })
+
+    } catch (err: any) {
+      outputs.push({ type: 'error', message: `Runtime Error: ${err.message}` })
+    }
 
     setConsoleOutputs(outputs)
-
     setIsRunning(false)
   }, [visibleTestCases])
 
   // Handle Submit (all tests + evaluation)
   const handleSubmit = useCallback(async (files: EditorFile[]) => {
     setIsSubmitting(true)
-    setConsoleOutputs([
-      { type: 'info', message: 'Submitting solution...' },
-    ])
+    setConsoleOutputs([{ type: 'info', message: 'Submitting solution...' }])
 
-    await new Promise((resolve) => setTimeout(resolve, 1200))
+    await new Promise((resolve) => setTimeout(resolve, 1000))
 
     if (allTestCases.length === 0) {
       setConsoleOutputs([
@@ -180,24 +220,75 @@ export default function TicketPage() {
       return
     }
 
-    const outputs: ConsoleOutput[] = [
-      { type: 'info', message: 'Submitting solution...' },
-      { type: 'log', message: 'Running all test cases (including hidden)...' },
-    ]
+    const outputs: ConsoleOutput[] = [{ type: 'info', message: 'Running all test cases (including hidden)...' }]
 
-    allTestCases.forEach((testCase, index) => {
-      outputs.push({
-        type: 'log',
-        message: `> Test Case ${index + 1}: input = ${testCase.input}`,
+    const primaryFile = files.find(f => !f.readOnly) || files[0]
+    if (!primaryFile) {
+      outputs.push({ type: 'error', message: 'Error: No code files found.' })
+      setConsoleOutputs(outputs)
+      setIsSubmitting(false)
+      return
+    }
+
+    try {
+      const userCode = primaryFile.content
+      const functionMatch = userCode.match(/function\s+(\w+)/)
+      const functionName = functionMatch ? functionMatch[1] : null
+
+      if (!functionName) throw new Error('Could not find a function to test.')
+
+      const runTest = new Function('input', `
+            ${userCode}
+            try {
+                const args = JSON.parse(input);
+                return ${functionName}(...args);
+            } catch (e) {
+                throw new Error('Execution error: ' + e.message);
+            }
+        `)
+
+      let passed = 0
+      allTestCases.forEach((testCase, index) => {
+        const isHidden = testCase.isHidden
+        if (!isHidden) {
+          outputs.push({ type: 'log', message: `> Test Case ${index + 1}: input = ${testCase.input}` })
+        }
+
+        try {
+          const result = runTest(testCase.input)
+          const actual = JSON.stringify(result)
+          const expected = testCase.expectedOutput
+
+          if (actual === expected || result.toString() === expected) {
+            if (!isHidden) outputs.push({ type: 'success', message: `  ✓ Passed` })
+            passed++
+          } else {
+            if (!isHidden) outputs.push({ type: 'error', message: `  ✗ Failed` })
+          }
+        } catch (err: any) {
+          if (!isHidden) outputs.push({ type: 'error', message: `  ⚠ ${err.message}` })
+        }
       })
-    })
 
-    outputs.push({ type: 'success', message: `✓ ${allTestCases.length}/${allTestCases.length} test cases processed` })
-    outputs.push({ type: 'log', message: '' })
-    outputs.push({ type: 'success', message: 'Submission completed (sandbox execution not configured)' })
+      outputs.push({ type: 'log', message: '' })
+      const allPassed = passed === allTestCases.length
+      outputs.push({
+        type: allPassed ? 'success' : 'error',
+        message: `Final Result: ${passed}/${allTestCases.length} tests passed`,
+      })
+
+      if (allPassed) {
+        outputs.push({ type: 'success', message: '✨ Solution Accepted! Awarding points...' })
+        // TODO: Call API to mark ticket as completed and add points/NFT
+      } else {
+        outputs.push({ type: 'error', message: 'Solution rejected. Please fix the bugs and try again.' })
+      }
+
+    } catch (err: any) {
+      outputs.push({ type: 'error', message: `Runtime Error: ${err.message}` })
+    }
 
     setConsoleOutputs(outputs)
-
     setIsSubmitting(false)
   }, [allTestCases])
 

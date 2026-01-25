@@ -51,6 +51,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         docsLinks: Array.isArray(raw.docsLinks) ? raw.docsLinks : [],
         attemptCount: typeof raw.attemptCount === 'number' ? raw.attemptCount : undefined,
         successRate: typeof raw.successRate === 'number' ? raw.successRate : undefined,
+        solutionCode: typeof raw.solutionCode === 'string' ? raw.solutionCode : undefined,
       },
     });
   } catch (error) {

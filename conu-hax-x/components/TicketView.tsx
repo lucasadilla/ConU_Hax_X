@@ -10,10 +10,10 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion'
-import { 
-  Clock, 
-  Zap, 
-  ExternalLink, 
+import {
+  Clock,
+  Zap,
+  ExternalLink,
   Lightbulb,
   CheckCircle2,
   AlertCircle,
@@ -60,6 +60,7 @@ export interface TicketData {
   // Stats
   attemptCount?: number
   successRate?: number
+  solutionCode?: string
 }
 
 interface TicketViewProps {
@@ -96,28 +97,28 @@ export default function TicketView({ ticket, className }: TicketViewProps) {
         <h1 className="text-xl font-bold text-foreground mb-3">
           {ticket.title}
         </h1>
-        
+
         {/* Meta Row */}
         <div className="flex flex-wrap items-center gap-2">
           {/* Difficulty Badge */}
-          <Badge 
-            variant="outline" 
+          <Badge
+            variant="outline"
             className={cn('font-medium', difficultyConfig.color)}
           >
             {difficultyConfig.label}
           </Badge>
-          
+
           {/* Category */}
           <Badge variant="secondary">
             {ticket.category}
           </Badge>
-          
+
           {/* Points */}
           <div className="flex items-center gap-1 text-sm text-primary">
             <Zap className="size-4" />
             <span>{ticket.points} XP</span>
           </div>
-          
+
           {/* Time Limit */}
           {ticket.timeLimit && (
             <div className="flex items-center gap-1 text-sm text-muted-foreground">
@@ -126,7 +127,7 @@ export default function TicketView({ ticket, className }: TicketViewProps) {
             </div>
           )}
         </div>
-        
+
         {/* Tags */}
         {ticket.tags.length > 0 && (
           <div className="flex flex-wrap gap-1.5 mt-3">
@@ -145,21 +146,21 @@ export default function TicketView({ ticket, className }: TicketViewProps) {
       {/* Tabs */}
       <Tabs defaultValue="description" className="flex-1 flex flex-col min-h-0">
         <TabsList className="bg-muted/50 border-b border-border rounded-none h-10 px-4 justify-start">
-          <TabsTrigger 
+          <TabsTrigger
             value="description"
             className="text-sm data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none"
           >
             <BookOpen className="size-4 mr-1.5" />
             Description
           </TabsTrigger>
-          <TabsTrigger 
+          <TabsTrigger
             value="solutions"
             className="text-sm data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none"
           >
             <CheckCircle2 className="size-4 mr-1.5" />
             Solutions
           </TabsTrigger>
-          <TabsTrigger 
+          <TabsTrigger
             value="hints"
             className="text-sm data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none"
           >
@@ -171,7 +172,7 @@ export default function TicketView({ ticket, className }: TicketViewProps) {
         <TabsContent value="description" className="flex-1 m-0 overflow-hidden">
           <ScrollArea className="h-full">
             <div className="p-4 space-y-6">
-             
+
               {/* Description */}
               <div>
                 <p className="text-foreground/80 leading-relaxed whitespace-pre-wrap">
@@ -195,7 +196,7 @@ export default function TicketView({ ticket, className }: TicketViewProps) {
                         <div className="text-xs text-muted-foreground mb-2">
                           Example {index + 1}
                         </div>
-                        
+
                         <div className="space-y-2">
                           <div>
                             <span className="text-muted-foreground text-sm">Input: </span>
@@ -270,12 +271,34 @@ export default function TicketView({ ticket, className }: TicketViewProps) {
         <TabsContent value="solutions" className="flex-1 m-0 overflow-hidden">
           <ScrollArea className="h-full">
             <div className="p-4">
-              <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
-                <CheckCircle2 className="size-12 mb-4 text-muted-foreground/50" />
-                <p className="text-center">
-                  Solutions will be available after you solve the problem.
-                </p>
-              </div>
+              {ticket.solutionCode ? (
+                <div className="space-y-4">
+                  <div className="bg-yellow-500/10 border border-yellow-500/20 p-4 rounded-lg flex items-start gap-3">
+                    <AlertCircle className="size-5 text-yellow-500 shrink-0 mt-0.5" />
+                    <div>
+                      <h4 className="text-sm font-medium text-yellow-500 mb-1">Spoiler Warning</h4>
+                      <p className="text-xs text-yellow-500/80">
+                        Try to solve the problem yourself first! Viewing the solution might reduce your learning experience.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="relative group">
+                    <pre className="bg-muted p-4 rounded-lg overflow-x-auto text-sm font-mono relative z-0">
+                      <code>{ticket.solutionCode}</code>
+                    </pre>
+                    {/* Blur overlay - Removed on hover/click in a real implementation, 
+                        but for now let's just make it a toggle or simple reveal */}
+                  </div>
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
+                  <CheckCircle2 className="size-12 mb-4 text-muted-foreground/50" />
+                  <p className="text-center">
+                    No reference solution available for this problem.
+                  </p>
+                </div>
+              )}
             </div>
           </ScrollArea>
         </TabsContent>
