@@ -109,12 +109,20 @@ export default async function QuestPage({ params }: QuestPageProps) {
           <QuestMap
             questId={quest._id.toString()}
             questTitle={quest.title}
-            stages={quest.stages.map((stage, index) => ({
-              difficulty: stage.difficulty,
-              ticketId: stage.ticketId.toString(),
-              order: stage.order,
-              unlocked: index === 0, // TODO: Check user progress
-            }))}
+            stages={quest.stages.map((stage, index) => {
+              const rawTicketId: any = stage.ticketId
+              const resolvedTicketId =
+                typeof rawTicketId === 'string'
+                  ? rawTicketId
+                  : rawTicketId?._id?.toString?.() ?? rawTicketId?.id?.toString?.()
+
+              return {
+                difficulty: stage.difficulty,
+                ticketId: resolvedTicketId || '',
+                order: stage.order,
+                unlocked: index === 0, // TODO: Check user progress
+              }
+            })}
           />
         </Card>
 

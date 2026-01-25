@@ -183,7 +183,15 @@ export function QuestMap({ questId, questTitle, stages, userProgress }: QuestMap
 
                   {/* Action Button */}
                   {!isLocked && (
-                    <Link href={`/quest/${questId}/stage/${index}`}>
+                    <Link
+                      href={`/ticket/${
+                        typeof stage.ticketId === 'string'
+                          ? stage.ticketId
+                          : (stage.ticketId as any)?._id?.toString?.() ??
+                            (stage.ticketId as any)?.id?.toString?.() ??
+                            ''
+                      }`}
+                    >
                       <Button
                         size="sm"
                         variant={isCompleted ? 'outline' : 'default'}

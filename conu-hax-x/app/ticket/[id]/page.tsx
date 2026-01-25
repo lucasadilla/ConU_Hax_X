@@ -9,6 +9,7 @@ import {
 } from '@/components/ui/resizable'
 import TicketView, { TicketData } from '@/components/TicketView'
 import CodeEditor, { EditorFile, ConsoleOutput } from '@/components/CodeEditor'
+import { Header } from '@/components/header'
 
 const MOCK_FILES: EditorFile[] = [
   {
@@ -147,42 +148,45 @@ export default function TicketPage() {
   }, [])
 
   return (
-    <div className="h-screen bg-background p-3">
-      <ResizablePanelGroup direction="horizontal" className="h-full rounded-lg gap-2">
-        <ResizablePanel defaultSize="40%" minSize="25%" maxSize="60%" id="ticket-panel">
-          {isTicketLoading && (
-            <div className="h-full flex items-center justify-center text-muted-foreground">
-              Chargement du ticket...
-            </div>
-          )}
+    <div className="min-h-screen bg-background flex flex-col">
+      <Header />
+      <div className="h-[calc(100vh-4rem)] p-3">
+        <ResizablePanelGroup direction="horizontal" className="h-full rounded-lg gap-2">
+          <ResizablePanel defaultSize="40%" minSize="25%" maxSize="60%" id="ticket-panel">
+            {isTicketLoading && (
+              <div className="h-full flex items-center justify-center text-muted-foreground">
+                Chargement du ticket...
+              </div>
+            )}
 
-          {ticketError && !isTicketLoading && (
-            <div className="h-full flex items-center justify-center text-destructive">
-              {ticketError}
-            </div>
-          )}
+            {ticketError && !isTicketLoading && (
+              <div className="h-full flex items-center justify-center text-destructive">
+                {ticketError}
+              </div>
+            )}
 
-          {!isTicketLoading && !ticketError && ticket && (
-            <TicketView ticket={ticket} className="h-full" />
-          )}
-        </ResizablePanel>
+            {!isTicketLoading && !ticketError && ticket && (
+              <TicketView ticket={ticket} className="h-full" />
+            )}
+          </ResizablePanel>
 
-        <ResizableHandle withHandle className="w-2 bg-border hover:bg-primary transition-colors rounded" />
+          <ResizableHandle withHandle className="w-2 bg-border hover:bg-primary transition-colors rounded" />
 
-        <ResizablePanel defaultSize="60%" minSize="35%" id="editor-panel">
-          <CodeEditor
-            files={MOCK_FILES}
-            defaultActiveFileId="solution"
-            onRun={handleRun}
-            onSubmit={handleSubmit}
-            isRunning={isRunning}
-            isSubmitting={isSubmitting}
-            consoleOutputs={consoleOutputs}
-            className="h-full"
-          />
-        </ResizablePanel>
+          <ResizablePanel defaultSize="60%" minSize="35%" id="editor-panel">
+            <CodeEditor
+              files={MOCK_FILES}
+              defaultActiveFileId="solution"
+              onRun={handleRun}
+              onSubmit={handleSubmit}
+              isRunning={isRunning}
+              isSubmitting={isSubmitting}
+              consoleOutputs={consoleOutputs}
+              className="h-full"
+            />
+          </ResizablePanel>
 
-      </ResizablePanelGroup>
+        </ResizablePanelGroup>
+      </div>
     </div>
   )
 }
