@@ -178,10 +178,15 @@ export default function CodeEditor({
     monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
       jsx: monaco.languages.typescript.JsxEmit.ReactJSX,
       allowNonTsExtensions: true,
+      allowJs: true,
     })
     monaco.languages.typescript.javascriptDefaults.setCompilerOptions({
       jsx: monaco.languages.typescript.JsxEmit.ReactJSX,
+      allowNonTsExtensions: true,
+      allowJs: true,
     })
+    monaco.languages.typescript.typescriptDefaults.setEagerModelSync(true)
+    monaco.languages.typescript.javascriptDefaults.setEagerModelSync(true)
   }, [])
 
   const handleEditorMount = useCallback((editor: any) => {
@@ -192,14 +197,15 @@ export default function CodeEditor({
   }, [])
 
   const formatWithPrettier = useCallback(async (content: string, language: string) => {
-    const normalized = language.toLowerCase()
+    const raw = (language || '').toLowerCase()
+    const normalized = raw === 'js' ? 'javascript' : raw === 'ts' ? 'typescript' : raw
     const supported = ['javascript', 'typescript', 'jsx', 'tsx']
     if (!supported.includes(normalized)) return content
 
     try {
       const prettierModule = await import('prettier/standalone')
-      const parserBabelModule = await import('prettier/parser-babel')
-      const parserTypescriptModule = await import('prettier/parser-typescript')
+      const parserBabelModule = await import('prettier/plugins/babel')
+      const parserTypescriptModule = await import('prettier/plugins/typescript')
       const parserEstreeModule = await import('prettier/plugins/estree')
       const formatFn = (prettierModule as any).format || (prettierModule as any).default?.format
       const parserBabel = (parserBabelModule as any).default || parserBabelModule
@@ -276,14 +282,15 @@ export default function CodeEditor({
       <div className="flex-1 min-h-0">
         {activeFile && (
           <Editor
-            key={activeFile.id}
             height="100%"
+            path={`file:///${activeFile.name || activeFile.id}`}
             language={activeFile.language}
             value={activeFile.content}
             onChange={handleContentChange}
             onMount={handleEditorMount}
             beforeMount={handleBeforeMount}
             theme="vs-dark"
+            keepCurrentModel
             options={{
               readOnly: activeFile.readOnly,
               minimap: { enabled: false },

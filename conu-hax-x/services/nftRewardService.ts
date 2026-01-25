@@ -14,6 +14,17 @@ export async function awardBadge(
   ticketId: string
 ): Promise<boolean> {
   try {
+    // If any attempt already has a badge for this ticket, do not award again
+    const existingBadgeAttempt = await Attempt.findOne({
+      userId: new mongoose.Types.ObjectId(userId),
+      ticketId: new mongoose.Types.ObjectId(ticketId),
+      badgeEarned: true,
+    });
+
+    if (existingBadgeAttempt) {
+      return true;
+    }
+
     // Find the most recent passed attempt
     const attempt = await Attempt.findOne({
       userId: new mongoose.Types.ObjectId(userId),

@@ -9,7 +9,13 @@ if (mongoose.connection.readyState === 0) {
 export interface IAttempt extends Document {
   userId: mongoose.Types.ObjectId;
   ticketId: mongoose.Types.ObjectId;
-  solution: string;
+  solution?: string;
+  code?: string;
+  language?: string;
+  timeSpent?: number;
+  status?: 'pending' | 'completed' | 'error';
+  testResults?: ITestResult[];
+  evaluation?: any;
   score?: number;
   passed: boolean;
   badgeEarned: boolean; // Badge awarded on completion (off-chain)
@@ -17,6 +23,15 @@ export interface IAttempt extends Document {
   nftMintedAt?: Date;
   createdAt: Date;
   updatedAt: Date;
+}
+
+export interface ITestResult {
+  testCaseIndex: number;
+  passed: boolean;
+  input: string;
+  expectedOutput: string;
+  actualOutput: string;
+  error?: string;
 }
 
 const AttemptSchema: Schema = new Schema(
@@ -33,7 +48,37 @@ const AttemptSchema: Schema = new Schema(
     },
     solution: {
       type: String,
-      required: true,
+    },
+    code: {
+      type: String,
+    },
+    language: {
+      type: String,
+    },
+    timeSpent: {
+      type: Number,
+      default: 0,
+    },
+    status: {
+      type: String,
+      enum: ['pending', 'completed', 'error'],
+      default: 'pending',
+    },
+    testResults: {
+      type: [
+        {
+          testCaseIndex: Number,
+          passed: Boolean,
+          input: String,
+          expectedOutput: String,
+          actualOutput: String,
+          error: String,
+        },
+      ],
+      default: [],
+    },
+    evaluation: {
+      type: Schema.Types.Mixed,
     },
     score: {
       type: Number,

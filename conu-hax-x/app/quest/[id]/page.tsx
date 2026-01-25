@@ -19,7 +19,7 @@ export default async function QuestPage({ params }: QuestPageProps) {
   const { id } = await params
 
   let quest = null
-  let progress = null
+  let userProgress = null
   let error = null
 
   try {
@@ -27,10 +27,8 @@ export default async function QuestPage({ params }: QuestPageProps) {
     quest = await QuestService.getQuestById(id)
 
     if (session?.user?.id && quest) {
-      progress = await UserQuestProgress.findOne({
-        userId: session.user.id,
-        questId: quest._id
-      })
+      const progressList = await QuestService.getUserQuestProgress(session.user.id, id)
+      userProgress = progressList?.[0] || null
     }
   } catch (err) {
     error = err instanceof Error ? err.message : 'Failed to load quest'
@@ -120,8 +118,8 @@ export default async function QuestPage({ params }: QuestPageProps) {
         <div
           className="rounded-xl p-8 mb-8"
           style={{
-            backgroundColor: themeStyles[quest.theme].backgroundColor,
-            border: `3px solid ${themeStyles[quest.theme].borderColor}`,
+            backgroundColor: themeStyles[quest.theme as keyof typeof themeStyles]?.backgroundColor || 'rgba(30, 30, 46, 0.15)',
+            border: `3px solid ${themeStyles[quest.theme as keyof typeof themeStyles]?.borderColor || '#1e1e2e'}`,
             boxShadow: '6px 6px 0 rgba(0,0,0,0.3)',
           }}
         >
@@ -189,10 +187,10 @@ export default async function QuestPage({ params }: QuestPageProps) {
           <QuestMap
             questId={quest._id.toString()}
             questTitle={quest.title}
-            userProgress={progress ? {
-              currentStage: progress.currentStage,
-              completedStages: progress.completedStages,
-              stageScores: progress.stageScores.map((s: any) => ({
+            userProgress={userProgress ? {
+              currentStage: userProgress.currentStage,
+              completedStages: userProgress.completedStages,
+              stageScores: userProgress.stageScores.map((s: any) => ({
                 stageIndex: s.stageIndex,
                 score: s.score
               }))
@@ -204,9 +202,9 @@ export default async function QuestPage({ params }: QuestPageProps) {
                   ? rawTicketId
                   : rawTicketId?._id?.toString?.() ?? rawTicketId?.id?.toString?.()
 
-              const isAlreadyCompleted = progress?.completedStages?.includes(index) || false;
-              const isFirstUnsolved = index === (progress?.completedStages?.length || 0);
-              const isUnlocked = isAlreadyCompleted || isFirstUnsolved;
+              const isAlreadyCompleted = userProgress?.completedStages?.includes(index) || false;
+              const isFirstUnsolved = index === (userProgress?.completedStages?.length || 0);
+              const isUnlocked = index === 0 || isAlreadyCompleted || isFirstUnsolved;
 
               return {
                 difficulty: stage.difficulty,

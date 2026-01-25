@@ -1,7 +1,8 @@
 'use client'
 
-import React, { useState, useCallback, useEffect, useMemo } from 'react'
-import { useParams, useRouter } from 'next/navigation'
+import React, { useState, useCallback, useEffect, useMemo, useRef } from 'react'
+import { useParams, useRouter, useSearchParams } from 'next/navigation'
+import { useSession } from 'next-auth/react'
 import {
   ResizablePanelGroup,
   ResizablePanel,
@@ -82,7 +83,13 @@ function preprocessCode(code: string): string {
 
 export default function TicketPage() {
   const params = useParams<{ id: string | string[] }>()
+  const searchParams = useSearchParams()
+  const router = useRouter()
+  const { data: session } = useSession()
+
   const ticketId = Array.isArray(params?.id) ? params?.id[0] : params?.id
+  const questId = searchParams.get('questId')
+
   const [ticket, setTicket] = useState<TicketData | null>(null)
   const [ticketError, setTicketError] = useState<string | null>(null)
   const [isTicketLoading, setIsTicketLoading] = useState(true)
@@ -92,7 +99,7 @@ export default function TicketPage() {
   const [showSuccess, setShowSuccess] = useState(false)
   const [questResult, setQuestResult] = useState<any>(null)
 
-  const router = useRouter()
+  const startTimeRef = useRef<number>(Date.now())
 
   useEffect(() => {
     let isMounted = true
@@ -143,6 +150,10 @@ export default function TicketPage() {
       isMounted = false
       controller.abort()
     }
+  }, [ticketId])
+
+  useEffect(() => {
+    startTimeRef.current = Date.now()
   }, [ticketId])
 
   const editorFiles = useMemo<EditorFile[]>(() => {
@@ -196,9 +207,8 @@ export default function TicketPage() {
     }
 
     const outputs: ConsoleOutput[] = [{ type: 'info', message: 'Running visible tests...' }]
-
-    // Find the primary code file (assuming first non-readonly or specifically named one)
     const primaryFile = files.find(f => !f.readOnly) || files[0]
+
     if (!primaryFile) {
       outputs.push({ type: 'error', message: 'Error: No code files found to run.' })
       setConsoleOutputs(outputs)
@@ -208,42 +218,30 @@ export default function TicketPage() {
 
     let userCode = ''
     try {
-      // Simple client-side runner
-      // We wrap the code in a function to isolate it slightly and avoid global pollution
-      // This is a naive implementation for the prototype
       const rawCode = primaryFile.content
       userCode = preprocessCode(rawCode)
 
-      // Extract function name if possible or assume default exported function
-      // For these simple challenges, we'll try to find a function declaration
-      const functionMatch = userCode.match(/function\s+(\w+)/)
+      const functionMatch = userCode.match(/function\s+(\w+)/) || userCode.match(/const\s+(\w+)\s*=\s*\(?/)
       const functionName = functionMatch ? functionMatch[1] : null
 
       if (!functionName) {
         throw new Error('Could not find a function to test. Please ensure you defined a function.')
       }
 
-      // Prepare execution context
-      // We provide a mock environment for full-stack tasks
+      // Execution context
       const mockEnv = {
-        process: {
-          env: {
-            MONGODB_URI: 'mongodb://mock-uri-for-testing'
-          }
-        },
+        process: { env: { MONGODB_URI: 'mongodb://mock-uri-for-testing' } },
         NextResponse: {
-          json: (data: any, init?: any) => {
-            return {
-              json: async () => data,
-              status: init?.status || 200,
-              _data: data // Helper for testing
-            }
-          }
+          json: (data: any, init?: any) => ({
+            json: async () => data,
+            status: init?.status || 200,
+            _data: data
+          })
         },
         mongoose: {
           connect: async () => ({ id: 'mock-db-conn' }),
           Schema: class { },
-          model: (name: string) => ({
+          model: () => ({
             create: async (data: any) => ({ ...data, _id: 'mock-id' }),
             find: () => ({ sort: () => ({ lean: async () => [] }) }),
             findByIdAndDelete: async () => ({ ok: true })
@@ -257,13 +255,8 @@ export default function TicketPage() {
             return (async () => {
                 try {
                     const args = JSON.parse(input);
-                    const result = await ${functionName}(...args);
-                    
-                    // If it's a mock NextResponse, extract the JSON data
-                    if (result && typeof result.json === 'function' && result._data) {
-                        return result._data;
-                    }
-                    
+                    const result = await ${functionName}(...(Array.isArray(args) ? args : [args]));
+                    if (result && typeof result.json === 'function' && result._data) return result._data;
                     return result;
                 } catch (e) {
                     throw new Error('Execution error: ' + e.message);
@@ -292,7 +285,7 @@ export default function TicketPage() {
       testResults.forEach(res => {
         outputs.push({ type: 'log', message: `> Test Case ${res.index + 1}: input = ${res.input}` })
         if (res.success) {
-          outputs.push({ type: 'success', message: `  ✓ Passed (Result: ${res.actual})` })
+          outputs.push({ type: 'success', message: `  ✓ Passed` })
         } else if (res.error) {
           outputs.push({ type: 'error', message: `  ⚠ ${res.error}` })
         } else {
@@ -307,64 +300,54 @@ export default function TicketPage() {
       })
 
     } catch (err: any) {
-      console.error('TRANSPILED CODE ON ERROR:\n', userCode);
       outputs.push({ type: 'error', message: `Runtime Error: ${err.message}` });
-      outputs.push({ type: 'info', message: 'Check the browser console (F12) for the transpiled source code.' });
     }
 
     setConsoleOutputs(outputs)
     setIsRunning(false)
   }, [visibleTestCases])
 
-  // Handle Submit (all tests + evaluation)
+  // Handle Submit (all tests)
   const handleSubmit = useCallback(async (files: EditorFile[]) => {
     setIsSubmitting(true)
     setConsoleOutputs([{ type: 'info', message: 'Submitting solution...' }])
 
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+    await new Promise((resolve) => setTimeout(resolve, 800))
 
     if (allTestCases.length === 0) {
-      setConsoleOutputs([
-        { type: 'info', message: 'Submitting solution...' },
-        { type: 'error', message: 'No test cases available for submission.' },
-      ])
+      setConsoleOutputs([{ type: 'error', message: 'No test cases available for submission.' }])
+      setIsSubmitting(false)
+      return
+    }
+
+    const primaryFile = files.find(f => !f.readOnly) || files[0]
+    if (!primaryFile) {
+      setConsoleOutputs([{ type: 'error', message: 'Error: No code files found.' }])
       setIsSubmitting(false)
       return
     }
 
     const outputs: ConsoleOutput[] = [{ type: 'info', message: 'Running all test cases (including hidden)...' }]
-
-    const primaryFile = files.find(f => !f.readOnly) || files[0]
-    if (!primaryFile) {
-      outputs.push({ type: 'error', message: 'Error: No code files found.' })
-      setConsoleOutputs(outputs)
-      setIsSubmitting(false)
-      return
-    }
-
     let userCode = ''
     try {
       const rawCode = primaryFile.content
       userCode = preprocessCode(rawCode)
 
-      const functionMatch = userCode.match(/function\s+(\w+)/)
+      const functionMatch = userCode.match(/function\s+(\w+)/) || userCode.match(/const\s+(\w+)\s*=\s*\(?/)
       const functionName = functionMatch ? functionMatch[1] : null
 
       if (!functionName) throw new Error('Could not find a function to test.')
 
+      // Mock environment for execution
       const mockEnv = {
-        process: {
-          env: {
-            MONGODB_URI: 'mongodb://mock-uri-for-testing'
-          }
-        },
+        process: { env: { MONGODB_URI: 'mongodb://mock-uri-for-testing' } },
         NextResponse: {
           json: (data: any, init?: any) => ({ json: async () => data, status: init?.status || 200, _data: data })
         },
         mongoose: {
           connect: async () => ({ id: 'mock-db-conn' }),
           Schema: class { },
-          model: (name: string) => ({
+          model: () => ({
             create: async (data: any) => ({ ...data, _id: 'mock-id' }),
             find: () => ({ sort: () => ({ lean: async () => [] }) }),
             findByIdAndDelete: async () => ({ ok: true })
@@ -378,7 +361,7 @@ export default function TicketPage() {
             return (async () => {
                 try {
                     const args = JSON.parse(input);
-                    const result = await ${functionName}(...args);
+                    const result = await ${functionName}(...(Array.isArray(args) ? args : [args]));
                     if (result && typeof result.json === 'function' && result._data) return result._data;
                     return result;
                 } catch (e) {
@@ -387,17 +370,17 @@ export default function TicketPage() {
             })();
         `)
 
-      let passed = 0
+      let passedCount = 0
       const testResults = await Promise.all(allTestCases.map(async (testCase, index) => {
         try {
           const result = await runTest(testCase.input, mockEnv.NextResponse, mockEnv.mongoose, mockEnv.process)
           const actual = JSON.stringify(result === undefined ? null : result)
           const expected = testCase.expectedOutput
           if (actual === expected || (result !== undefined && result?.toString() === expected)) {
-            passed++
-            return { index, input: testCase.input, actual, expected, success: true, isHidden: testCase.isHidden }
+            passedCount++
+            return { index, input: testCase.input, success: true, isHidden: testCase.isHidden }
           }
-          return { index, input: testCase.input, actual, expected, success: false, isHidden: testCase.isHidden }
+          return { index, input: testCase.input, success: false, isHidden: testCase.isHidden }
         } catch (err: any) {
           return { index, input: testCase.input, error: err.message, success: false, isHidden: testCase.isHidden }
         }
@@ -412,23 +395,24 @@ export default function TicketPage() {
         }
       })
 
+      const allPassed = passedCount === allTestCases.length
       outputs.push({ type: 'log', message: '' })
-      const allPassed = passed === allTestCases.length
       outputs.push({
         type: allPassed ? 'success' : 'error',
-        message: `Final Result: ${passed}/${allTestCases.length} tests passed`,
+        message: `Final Result: ${passedCount}/${allTestCases.length} tests passed`,
       })
 
       if (allPassed) {
         outputs.push({ type: 'success', message: '✨ Solution Accepted! Saving progress...' })
 
         try {
+          const timeSpent = Math.max(0, Math.round((Date.now() - startTimeRef.current) / 1000))
           const response = await fetch(`/api/tickets/${ticketId}/complete`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               solution: primaryFile.content,
-              timeSpent: 0 // Could add a timer later
+              timeSpent
             }),
           });
 
@@ -444,11 +428,9 @@ export default function TicketPage() {
             setQuestResult(result);
             setShowSuccess(true);
           } else {
-            console.error('Failed to save progress:', result.error);
             outputs.push({ type: 'error', message: `⚠ Failed to save progress: ${result.error}` });
           }
         } catch (apiErr: any) {
-          console.error('API Error:', apiErr);
           outputs.push({ type: 'error', message: `⚠ Connection error: ${apiErr.message}` });
         }
       } else {
@@ -456,14 +438,12 @@ export default function TicketPage() {
       }
 
     } catch (err: any) {
-      console.error('TRANSPILED CODE ON ERROR (SUBMIT):\n', userCode);
       outputs.push({ type: 'error', message: `Runtime Error: ${err.message}` });
-      outputs.push({ type: 'info', message: 'Check the browser console (F12) for the transpiled source code.' });
     }
 
     setConsoleOutputs(outputs)
     setIsSubmitting(false)
-  }, [allTestCases])
+  }, [allTestCases, ticketId])
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
