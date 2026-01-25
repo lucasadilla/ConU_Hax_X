@@ -40,6 +40,21 @@ export interface TicketData {
   constraints: string[]
   hints: string[]
   docsLinks?: { title: string; url: string }[]
+  language?: string
+  testCases?: {
+    input: string
+    expectedOutput: string
+    isHidden?: boolean
+  }[]
+  codeFiles?: {
+    filename: string
+    language: string
+    content: string
+    isReadOnly?: boolean
+  }[]
+  isActive?: boolean
+  createdAt?: string
+  updatedAt?: string
   // Stats
   attemptCount?: number
   successRate?: number

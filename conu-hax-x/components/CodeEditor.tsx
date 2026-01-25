@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useCallback } from 'react'
+import React, { useState, useCallback, useEffect } from 'react'
 import Editor from '@monaco-editor/react'
 import { FileCode, Lock, Play, Send, Loader2, Terminal, ChevronDown, ChevronUp } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -33,7 +33,7 @@ interface CodeEditorProps {
 }
 
 const LANGUAGE_COLORS: Record<string, string> = {
-  typescript: 'text-yellow-400',
+  typescript: 'text-blue-400',
   javascript: 'text-yellow-400',
   python: 'text-green-400',
   java: 'text-orange-400',
@@ -67,10 +67,21 @@ export default function CodeEditor({
   const activeFile = allFiles.find((f) => f.id === activeFileId)
   const isDisabled = isRunning || isSubmitting
 
+  useEffect(() => {
+    setAllFiles(initialFiles)
+    setActiveFileId((current) => {
+      if (current && initialFiles.some((file) => file.id === current)) {
+        return current
+      }
+      return defaultActiveFileId || initialFiles[0]?.id || ''
+    })
+  }, [initialFiles, defaultActiveFileId])
+
   // Handlers
   const handleTabClick = useCallback((fileId: string) => {
     setActiveFileId(fileId)
   }, [])
+
 
   const handleContentChange = useCallback((value: string | undefined) => {
     if (!activeFile || activeFile.readOnly) return
