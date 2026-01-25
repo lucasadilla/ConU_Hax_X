@@ -2,6 +2,7 @@ import React from "react"
 import type { Metadata } from 'next'
 import { Press_Start_2P, JetBrains_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
+import AppSessionProvider from "./providers/SessionProvider"
 import './globals.css'
 
 const pressStart = Press_Start_2P({ 
@@ -27,7 +28,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${pressStart.variable} ${jetbrainsMono.variable} font-mono antialiased`}>
-        {children}
+        <AppSessionProvider>{children}</AppSessionProvider>
         <Analytics />
       </body>
     </html>

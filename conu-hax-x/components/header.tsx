@@ -5,8 +5,11 @@ import React from "react"
 import Link from "next/link"
 import { Sword, Trophy, Scroll, User, Flame } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { signOut, useSession } from "next-auth/react"
 
 export function Header() {
+  const { status } = useSession()
+
   return (
     <header className="sticky top-0 z-50 border-b-4 border-primary bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
@@ -37,14 +40,39 @@ export function Header() {
             <Trophy className="h-4 w-4 text-primary" />
             <span className="text-sm font-medium text-primary">2,450 XP</span>
           </div>
-          <Button 
-            variant="outline" 
-            size="sm"
-            className="border-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground font-medium bg-transparent"
-          >
-            <User className="h-4 w-4 mr-2" />
-            Login
-          </Button>
+          {status === "authenticated" ? (
+            <Button
+              variant="outline"
+              size="sm"
+              className="border-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground font-medium bg-transparent"
+              onClick={() => signOut({ callbackUrl: "/" })}
+            >
+              <User className="h-4 w-4 mr-2" />
+              Logout
+            </Button>
+          ) : status === "loading" ? (
+            <Button
+              variant="outline"
+              size="sm"
+              disabled
+              className="border-2 border-primary text-primary font-medium bg-transparent"
+            >
+              <User className="h-4 w-4 mr-2" />
+              Loading...
+            </Button>
+          ) : (
+            <Button
+              asChild
+              variant="outline"
+              size="sm"
+              className="border-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground font-medium bg-transparent"
+            >
+              <Link href="/api/auth/signin">
+                <User className="h-4 w-4 mr-2" />
+                Login
+              </Link>
+            </Button>
+          )}
         </div>
       </div>
     </header>
