@@ -38,12 +38,27 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
 
   if (error || !user) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen">
         <Header />
         <main className="container mx-auto px-4 py-12">
-          <div className="text-center">
-            <h1 className="text-2xl font-display text-primary mb-4">Profile Not Found</h1>
-            <p className="text-muted-foreground">The user profile doesn't exist.</p>
+          <div 
+            className="text-center p-8 rounded-xl max-w-md mx-auto"
+            style={{
+              backgroundColor: 'rgba(253, 224, 71, 0.1)',
+              border: '3px solid #1e1e2e',
+              boxShadow: '6px 6px 0 rgba(0,0,0,0.3)',
+            }}
+          >
+            <h1 
+              className="text-2xl font-display mb-4"
+              style={{ 
+                color: '#fde047',
+                textShadow: '2px 2px 0 rgba(0,0,0,0.5)',
+              }}
+            >
+              Profile Not Found
+            </h1>
+            <p className="text-slate-400">The user profile doesn't exist.</p>
           </div>
         </main>
         <Footer />
@@ -52,69 +67,118 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen">
       <Header />
       
       <main className="container mx-auto px-4 py-12 max-w-6xl">
         {/* Profile Header */}
-        <Card className="p-8 mb-8">
+        <Card 
+          className="p-8 mb-8"
+          style={{
+            backgroundColor: 'rgba(30, 30, 46, 0.9)',
+            border: '3px solid #1e1e2e',
+            boxShadow: '6px 6px 0 rgba(0,0,0,0.3)',
+          }}
+        >
           <div className="flex items-start gap-6">
-            <Avatar className="w-24 h-24 border-4 border-primary">
+            <Avatar 
+              className="w-24 h-24"
+              style={{
+                border: '4px solid #fde047',
+                boxShadow: '3px 3px 0 rgba(0,0,0,0.3)',
+              }}
+            >
               <AvatarImage src={user.avatarUrl || undefined} />
-              <AvatarFallback className="bg-primary/20 text-primary text-2xl font-bold">
+              <AvatarFallback 
+                style={{
+                  backgroundColor: 'rgba(253, 224, 71, 0.2)',
+                  color: '#fde047',
+                }}
+                className="text-2xl font-bold"
+              >
                 {user.username[0].toUpperCase()}
               </AvatarFallback>
             </Avatar>
             
             <div className="flex-1">
-              <h1 className="text-3xl font-display text-primary mb-2">
+              <h1 
+                className="text-3xl font-display mb-2"
+                style={{ 
+                  color: '#fde047',
+                  textShadow: '2px 2px 0 rgba(0,0,0,0.5)',
+                }}
+              >
                 {user.displayName || user.username}
               </h1>
-              <p className="text-muted-foreground mb-4">@{user.username}</p>
+              <p className="text-slate-400 mb-4">@{user.username}</p>
               
               {user.bio && (
-                <p className="text-foreground mb-4">{user.bio}</p>
+                <p className="text-white mb-4">{user.bio}</p>
               )}
 
               {/* Stats */}
               <div className="flex flex-wrap gap-4">
                 <div className="flex items-center gap-2 text-sm">
-                  <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
-                    <Trophy className="w-4 h-4 text-primary" />
+                  <div 
+                    className="w-8 h-8 rounded-lg flex items-center justify-center"
+                    style={{
+                      backgroundColor: 'rgba(253, 224, 71, 0.2)',
+                      border: '2px solid #fde047',
+                    }}
+                  >
+                    <Trophy className="w-4 h-4 text-yellow-400" />
                   </div>
                   <div>
-                    <div className="font-bold text-foreground">{user.totalPoints}</div>
-                    <div className="text-xs text-muted-foreground">Points</div>
+                    <div className="font-bold text-white">{user.totalPoints}</div>
+                    <div className="text-xs text-slate-500">Points</div>
                   </div>
                 </div>
                 
                 <div className="flex items-center gap-2 text-sm">
-                  <div className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center">
+                  <div 
+                    className="w-8 h-8 rounded-lg flex items-center justify-center"
+                    style={{
+                      backgroundColor: 'rgba(34, 197, 94, 0.2)',
+                      border: '2px solid #22c55e',
+                    }}
+                  >
                     <Target className="w-4 h-4 text-green-500" />
                   </div>
                   <div>
-                    <div className="font-bold text-foreground">{user.ticketsCompleted}</div>
-                    <div className="text-xs text-muted-foreground">Completed</div>
+                    <div className="font-bold text-white">{user.ticketsCompleted}</div>
+                    <div className="text-xs text-slate-500">Completed</div>
                   </div>
                 </div>
                 
                 <div className="flex items-center gap-2 text-sm">
-                  <div className="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center">
+                  <div 
+                    className="w-8 h-8 rounded-lg flex items-center justify-center"
+                    style={{
+                      backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                      border: '2px solid #3b82f6',
+                    }}
+                  >
                     <Zap className="w-4 h-4 text-blue-500" />
                   </div>
                   <div>
-                    <div className="font-bold text-foreground">Level {user.level}</div>
-                    <div className="text-xs text-muted-foreground">{user.experience} XP</div>
+                    <div className="font-bold text-white">Level {user.level}</div>
+                    <div className="text-xs text-slate-500">{user.experience} XP</div>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-2 text-sm">
-                  <div className="w-8 h-8 rounded-full bg-yellow-500/20 flex items-center justify-center">
-                    <Award className="w-4 h-4 text-yellow-500" />
+                  <div 
+                    className="w-8 h-8 rounded-lg flex items-center justify-center"
+                    style={{
+                      backgroundColor: 'rgba(249, 115, 22, 0.2)',
+                      border: '2px solid #f97316',
+                    }}
+                  >
+                    <Award className="w-4 h-4 text-orange-500" />
                   </div>
                   <div>
-                    <div className="font-bold text-foreground">{user.badges.length}</div>
-                    <div className="text-xs text-muted-foreground">Badges</div>
+                    <div className="font-bold text-white">{user.badges.length}</div>
+                    <div className="text-xs text-slate-500">Badges</div>
                   </div>
                 </div>
               </div>
@@ -131,18 +195,30 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                 currentStreak={streakInfo.currentStreak}
                 longestStreak={streakInfo.longestStreak}
                 totalDaysActive={streakInfo.totalDaysActive}
-                nextMilestone={nextMilestone}
                 needsWarning={streakInfo.daysUntilBreak === 0 && streakInfo.currentStreak > 0}
               />
             )}
 
             {/* Badges */}
-            <Card className="p-6">
-              <h3 className="text-lg font-display text-primary mb-4">
+            <Card 
+              className="p-6"
+              style={{
+                backgroundColor: 'rgba(30, 30, 46, 0.9)',
+                border: '3px solid #1e1e2e',
+                boxShadow: '6px 6px 0 rgba(0,0,0,0.3)',
+              }}
+            >
+              <h3 
+                className="text-lg font-display mb-4"
+                style={{ 
+                  color: '#fde047',
+                  textShadow: '2px 2px 0 rgba(0,0,0,0.5)',
+                }}
+              >
                 Earned Badges ({user.badges.length})
               </h3>
               {user.badges.length === 0 ? (
-                <p className="text-muted-foreground text-sm text-center py-8">
+                <p className="text-slate-400 text-sm text-center py-8">
                   No badges earned yet. Complete challenges to earn your first badge!
                 </p>
               ) : (
@@ -150,15 +226,20 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                   {user.badges.map((badge: any) => (
                     <div
                       key={badge._id}
-                      className="p-4 rounded-lg border-2 border-border bg-card text-center hover:scale-105 transition-transform"
+                      className="p-4 rounded-lg text-center hover:scale-105 hover:-translate-y-1 transition-all"
+                      style={{
+                        backgroundColor: 'rgba(253, 224, 71, 0.1)',
+                        border: '2px solid #fde047',
+                        boxShadow: '3px 3px 0 rgba(0,0,0,0.3)',
+                      }}
                     >
                       <div className="text-3xl mb-2">
                         {badge.category === 'streak' ? '🔥' : '🏆'}
                       </div>
-                      <div className="text-sm font-bold text-foreground mb-1">
+                      <div className="text-sm font-bold text-white mb-1">
                         {badge.name}
                       </div>
-                      <div className="text-xs text-muted-foreground">
+                      <div className="text-xs text-slate-500">
                         +{badge.pointsAwarded} pts
                       </div>
                     </div>
@@ -173,16 +254,32 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
             {/* Streak Milestones */}
             <StreakMilestones
               milestones={milestones}
+              backgroundColor="rgba(30, 30, 46, 0.9)"
               currentStreak={streakInfo?.currentStreak || 0}
               earnedBadges={user.badges.map((b: any) => b.name)}
             />
 
             {/* Recent Activity */}
-            <Card className="p-6">
-              <h3 className="text-lg font-display text-primary mb-4">Quick Stats</h3>
+            <Card 
+              className="p-6"
+              style={{
+                backgroundColor: 'rgba(30, 30, 46, 0.9)',
+                border: '3px solid #1e1e2e',
+                boxShadow: '6px 6px 0 rgba(0,0,0,0.3)',
+              }}
+            >
+              <h3 
+                className="text-lg font-display mb-4"
+                style={{ 
+                  color: '#fde047',
+                  textShadow: '2px 2px 0 rgba(0,0,0,0.5)',
+                }}
+              >
+                Quick Stats
+              </h3>
               <div className="space-y-3">
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Success Rate</span>
+                  <span className="text-slate-400">Success Rate</span>
                   <span className="font-bold text-green-500">
                     {user.ticketsAttempted > 0
                       ? Math.round((user.ticketsCompleted / user.ticketsAttempted) * 100)
@@ -190,22 +287,30 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                   </span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Total Attempts</span>
-                  <span className="font-bold text-foreground">{user.ticketsAttempted}</span>
+                  <span className="text-slate-400">Total Attempts</span>
+                  <span className="font-bold text-white">{user.ticketsAttempted}</span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Preferred Language</span>
-                  <Badge variant="secondary">{user.preferredLanguage}</Badge>
+                  <span className="text-slate-400">Preferred Language</span>
+                  <Badge 
+                    style={{
+                      backgroundColor: 'rgba(253, 224, 71, 0.2)',
+                      color: '#fde047',
+                      border: '1px solid #fde047',
+                    }}
+                  >
+                    {user.preferredLanguage}
+                  </Badge>
                 </div>
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Difficulty</span>
+                  <span className="text-slate-400">Difficulty</span>
                   <Badge
                     variant="outline"
                     className={
                       user.difficulty === 'easy'
                         ? 'border-green-500 text-green-500'
                         : user.difficulty === 'medium'
-                        ? 'border-yellow-500 text-yellow-500'
+                        ? 'border-orange-500 text-orange-500'
                         : 'border-red-500 text-red-500'
                     }
                   >
