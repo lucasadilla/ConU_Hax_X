@@ -12,6 +12,7 @@ import {
 import BadgeService from './badgeService';
 import TicketService from './ticketService';
 import StreakService from './streakService';
+import { awardBadge, mintCompletionNFT } from './nftRewardService';
 import mongoose from 'mongoose';
 
 export interface SubmitSolutionData {
@@ -98,7 +99,7 @@ export class EvaluationService {
           user.completeTicket(ticket.points);
           await user.save();
 
-          // Award badge
+          // Award badge (always, regardless of wallet connection)
           const badgeLevel = getBadgeLevel(evaluation.score);
           if (badgeLevel !== 'none') {
             await BadgeService.awardCompletionBadge(
@@ -107,6 +108,35 @@ export class EvaluationService {
               evaluation.score,
               ticket.title
             );
+          }
+
+          // Award off-chain badge for NFT system
+          console.log('🎖️  Awarding badge for quest completion...');
+          const badgeAwarded = await awardBadge(
+            userId.toString(),
+            ticketId.toString()
+          );
+
+          if (badgeAwarded) {
+            console.log('✅ Badge awarded successfully');
+
+            // If user has connected Phantom wallet, mint NFT
+            if (user.phantomWalletAddress) {
+              console.log('🎁 User has Phantom wallet, minting NFT...');
+              const nftAddress = await mintCompletionNFT(
+                userId.toString(),
+                ticketId.toString()
+              );
+
+              if (nftAddress) {
+                console.log(`✅ NFT minted successfully: ${nftAddress}`);
+              } else {
+                console.log('⚠️  NFT minting failed or skipped (check logs above)');
+              }
+            } else {
+              console.log('💎 No Phantom wallet connected - badge remains off-chain');
+              console.log('   User can connect wallet later to claim as NFT');
+            }
           }
 
           // Update daily streak
