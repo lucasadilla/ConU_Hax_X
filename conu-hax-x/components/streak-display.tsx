@@ -41,10 +41,23 @@ export function StreakDisplay({
   const level = getStreakLevel(currentStreak)
 
   return (
-    <Card className="p-6 border-2 border-primary/30 bg-gradient-to-br from-primary/5 to-accent/5">
+    <Card 
+      className="p-6"
+      style={{
+        backgroundColor: 'rgba(253, 224, 71, 0.1)',
+        border: '3px solid #1e1e2e',
+        boxShadow: '6px 6px 0 rgba(0,0,0,0.3)',
+      }}
+    >
       {/* Warning Banner */}
       {needsWarning && (
-        <div className="mb-4 p-3 rounded-lg bg-red-500/10 border-2 border-red-500/50">
+        <div 
+          className="mb-4 p-3 rounded-lg"
+          style={{
+            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+            border: '2px solid #ef4444',
+          }}
+        >
           <div className="flex items-center gap-2 text-red-400 text-sm">
             <Flame className="w-4 h-4 animate-pulse" />
             <span className="font-bold">Streak at risk!</span>
@@ -57,15 +70,34 @@ export function StreakDisplay({
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-4">
           <div className="relative">
-            <div className="w-16 h-16 rounded-full bg-primary/20 border-4 border-primary flex items-center justify-center">
-              <Flame className="w-8 h-8 text-primary" />
+            <div 
+              className="w-16 h-16 rounded-full flex items-center justify-center"
+              style={{
+                backgroundColor: 'rgba(249, 115, 22, 0.2)',
+                border: '4px solid #f97316',
+              }}
+            >
+              <Flame className="w-8 h-8 text-orange-500" />
             </div>
-            <div className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-accent flex items-center justify-center text-xs font-bold text-accent-foreground">
+            <div 
+              className="absolute -top-1 -right-1 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold"
+              style={{
+                backgroundColor: '#fde047',
+                color: '#1e1e2e',
+                border: '2px solid #1e1e2e',
+              }}
+            >
               {currentStreak}
             </div>
           </div>
           <div>
-            <div className="text-2xl font-display text-primary">
+            <div 
+              className="text-2xl font-display"
+              style={{
+                color: '#fde047',
+                textShadow: '2px 2px 0 rgba(0,0,0,0.5)',
+              }}
+            >
               {currentStreak} Day Streak
             </div>
             <div className={`text-sm font-bold ${level.color}`}>
@@ -77,56 +109,97 @@ export function StreakDisplay({
 
       {/* Stats Grid */}
       <div className="grid grid-cols-2 gap-4 mb-6">
-        <div className="p-3 rounded-lg bg-card border border-border">
+        <div 
+          className="p-3 rounded-lg"
+          style={{
+            backgroundColor: 'rgba(30, 30, 46, 0.5)',
+            border: '2px solid #1e1e2e',
+          }}
+        >
           <div className="flex items-center gap-2 mb-1">
-            <TrendingUp className="w-4 h-4 text-muted-foreground" />
-            <span className="text-xs text-muted-foreground">Longest Streak</span>
+            <TrendingUp className="w-4 h-4 text-slate-400" />
+            <span className="text-xs text-slate-400">Longest Streak</span>
           </div>
-          <div className="text-xl font-bold text-foreground">{longestStreak} days</div>
+          <div className="text-xl font-bold text-white">{longestStreak} days</div>
         </div>
-        <div className="p-3 rounded-lg bg-card border border-border">
+        <div 
+          className="p-3 rounded-lg"
+          style={{
+            backgroundColor: 'rgba(30, 30, 46, 0.5)',
+            border: '2px solid #1e1e2e',
+          }}
+        >
           <div className="flex items-center gap-2 mb-1">
-            <Calendar className="w-4 h-4 text-muted-foreground" />
-            <span className="text-xs text-muted-foreground">Total Days</span>
+            <Calendar className="w-4 h-4 text-slate-400" />
+            <span className="text-xs text-slate-400">Total Days</span>
           </div>
-          <div className="text-xl font-bold text-foreground">{totalDaysActive} days</div>
+          <div className="text-xl font-bold text-white">{totalDaysActive} days</div>
         </div>
       </div>
 
       {/* Next Milestone */}
       {nextMilestone && (
-        <div className="p-4 rounded-lg bg-gradient-to-r from-primary/10 to-accent/10 border border-primary/30">
+        <div 
+          className="p-4 rounded-lg"
+          style={{
+            background: 'linear-gradient(135deg, rgba(253, 224, 71, 0.2), rgba(249, 115, 22, 0.2))',
+            border: '2px solid #fde047',
+          }}
+        >
           <div className="flex items-start justify-between mb-3">
             <div className="flex items-center gap-2">
-              <Award className="w-5 h-5 text-primary" />
+              <Award className="w-5 h-5 text-yellow-400" />
               <div>
-                <div className="font-bold text-foreground text-sm">Next Milestone</div>
-                <div className="text-xs text-muted-foreground">{nextMilestone.badgeName}</div>
+                <div className="font-bold text-white text-sm">Next Milestone</div>
+                <div className="text-xs text-slate-400">{nextMilestone.badgeName}</div>
               </div>
             </div>
-            <Badge variant="outline" className="border-primary text-primary">
+            <Badge 
+              style={{
+                backgroundColor: 'rgba(253, 224, 71, 0.2)',
+                color: '#fde047',
+                border: '1px solid #fde047',
+              }}
+            >
               +{nextMilestone.points} pts
             </Badge>
           </div>
           
           <div className="space-y-2">
             <div className="flex items-center justify-between text-xs">
-              <span className="text-muted-foreground">Progress</span>
-              <span className="font-bold text-primary">
+              <span className="text-slate-400">Progress</span>
+              <span className="font-bold text-yellow-400">
                 {currentStreak} / {nextMilestone.days} days
               </span>
             </div>
-            <Progress value={progressToNextMilestone} className="h-2" />
+            <div 
+              className="h-2 rounded-full overflow-hidden"
+              style={{ backgroundColor: 'rgba(255,255,255,0.1)' }}
+            >
+              <div 
+                className="h-full rounded-full transition-all duration-500"
+                style={{ 
+                  width: `${progressToNextMilestone}%`,
+                  backgroundColor: '#fde047',
+                }}
+              />
+            </div>
           </div>
         </div>
       )}
 
       {/* Completed all milestones */}
       {!nextMilestone && currentStreak > 0 && (
-        <div className="p-4 rounded-lg bg-gradient-to-r from-yellow-500/10 to-amber-500/10 border border-yellow-500/30 text-center">
+        <div 
+          className="p-4 rounded-lg text-center"
+          style={{
+            background: 'linear-gradient(135deg, rgba(253, 224, 71, 0.2), rgba(251, 191, 36, 0.2))',
+            border: '2px solid #fde047',
+          }}
+        >
           <div className="text-2xl mb-2">🎉</div>
-          <div className="font-bold text-foreground">All Milestones Completed!</div>
-          <div className="text-xs text-muted-foreground">You're a true coding champion!</div>
+          <div className="font-bold text-white">All Milestones Completed!</div>
+          <div className="text-xs text-slate-400">You're a true coding champion!</div>
         </div>
       )}
     </Card>

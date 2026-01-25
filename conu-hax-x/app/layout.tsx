@@ -27,9 +27,12 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className="dark">
-      <body className={`${pressStart.variable} ${jetbrainsMono.variable} font-mono antialiased dark:bg-background`}>
-        <AuthProvider>{children}</AuthProvider>
+    <html lang="en">
+      <body className={`${pressStart.variable} ${jetbrainsMono.variable} font-mono antialiased min-h-screen`}>
+        <SkyBackground />
+        <div className="relative z-10">
+          <AuthProvider>{children}</AuthProvider>
+        </div>
         <Analytics />
       </body>
     </html>
