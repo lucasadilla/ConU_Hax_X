@@ -37,7 +37,7 @@ const faqs = [
 
 export function FAQ() {
   return (
-    <section className="py-16">
+    <section id="faq" className="py-16" style={{ scrollMarginTop: '100px' }}>
       <div className="container mx-auto px-4">
         <div className="max-w-3xl mx-auto">
           {/* Header */}

@@ -3,7 +3,7 @@
 import React from "react"
 
 import Link from "next/link"
-import { Sword, Trophy, Scroll, User, Flame } from "lucide-react"
+import { Sword, Trophy, Scroll, User, Flame, HelpCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 export function Header() {
@@ -39,6 +39,9 @@ export function Header() {
           </NavLink>
           <NavLink href="/#streak" icon={<Flame className="h-4 w-4" />}>
             Daily Streak
+          </NavLink>
+          <NavLink href="/#faq" icon={<HelpCircle className="h-4 w-4" />}>
+            FAQ
           </NavLink>
         </nav>
 
