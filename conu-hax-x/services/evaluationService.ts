@@ -3,6 +3,7 @@ import { connectToDatabase } from '@/lib/mongodb';
 import Attempt, { IAttempt, ITestResult } from '@/models/Attempt';
 import Ticket from '@/models/Ticket';
 import User from '@/models/User';
+import { Quest, UserQuestProgress } from '@/models/Quest';
 import { generateWithContext } from '@/lib/gemini';
 import {
   EVALUATE_SOLUTION_SYSTEM_PROMPT,
@@ -12,30 +13,51 @@ import {
 import BadgeService from './badgeService';
 import TicketService from './ticketService';
 import StreakService from './streakService';
+import SimpleExecutor from './simpleExecutor';
+import QuestProgressService from './questProgressService';
 import { awardBadge, mintCompletionNFT } from './nftRewardService';
 import mongoose from 'mongoose';
 
 export interface SubmitSolutionData {
   userId: string | mongoose.Types.ObjectId;
   ticketId: string | mongoose.Types.ObjectId;
+  questId?: string | mongoose.Types.ObjectId;
+  stageIndex?: number;
   code: string;
   language: string;
   timeSpent: number;
+}
+
+export interface EvaluationResult {
+  attempt: IAttempt;
+  questCompleted?: boolean;
+  nextStageUnlocked?: boolean;
+  nextStageIndex?: number;
+  badgeAwarded?: boolean;
+  nftMinted?: boolean;
 }
 
 export class EvaluationService {
   /**
    * Submit and evaluate a solution
    */
-  static async submitSolution(data: SubmitSolutionData): Promise<IAttempt> {
+  static async submitSolution(data: SubmitSolutionData): Promise<EvaluationResult> {
     await connectToDatabase();
 
-    const { userId, ticketId, code, language, timeSpent } = data;
+    const { userId, ticketId, questId, stageIndex, code, language, timeSpent } = data;
 
     // Get ticket
     const ticket = await Ticket.findById(ticketId);
     if (!ticket) {
       throw new Error('Ticket not found');
+    }
+
+    // Validate quest access if this is part of a quest
+    if (questId !== undefined && stageIndex !== undefined) {
+      const accessCheck = await QuestProgressService.canAccessStage(userId, questId, stageIndex);
+      if (!accessCheck.canAccess) {
+        throw new Error(accessCheck.reason || 'Cannot access this stage');
+      }
     }
 
     // Create attempt
@@ -49,20 +71,31 @@ export class EvaluationService {
     });
 
     try {
-      // Run test cases (simplified - in production, use sandbox)
-      const testResults = await this.runTestCases(code, ticket.testCases, language);
-      attempt.testResults = testResults;
+      attempt.status = 'running';
+      await attempt.save();
+
+      // Run test cases using SimpleExecutor
+      console.log(`🧪 Running test cases for ticket ${ticketId}...`);
+      const testExecution = await SimpleExecutor.executeTests(
+        code,
+        ticket.testCases,
+        language
+      );
+      
+      attempt.testResults = testExecution.testResults;
+      
+      console.log(`✅ Tests completed: ${testExecution.passedCount}/${testExecution.totalCount} passed`);
 
       // Calculate basic score from tests
-      const passedTests = testResults.filter(r => r.passed).length;
-      const totalTests = testResults.length;
-      const testScore = (passedTests / totalTests) * 100;
+      const testScore = testExecution.totalCount > 0 
+        ? (testExecution.passedCount / testExecution.totalCount) * 100 
+        : 0;
 
-      // Get AI evaluation
+      // Get AI evaluation for code quality
       const testResultsData = {
-        passed: passedTests,
-        failed: totalTests - passedTests,
-        total: totalTests,
+        passed: testExecution.passedCount,
+        failed: testExecution.failedCount,
+        total: testExecution.totalCount,
       };
 
       const prompt = evaluateSolutionPrompt(
@@ -84,16 +117,18 @@ export class EvaluationService {
 
       attempt.evaluation = evaluation;
       attempt.score = evaluation.score;
-      attempt.passed = evaluation.passed;
+      attempt.passed = evaluation.passed && testExecution.passed; // Must pass both tests and AI evaluation
       attempt.status = 'completed';
 
       await attempt.save();
 
       // Update ticket stats
-      await TicketService.updateTicketStats(ticketId, evaluation.score, evaluation.passed);
+      await TicketService.updateTicketStats(ticketId, evaluation.score, attempt.passed);
+
+      const result: EvaluationResult = { attempt };
 
       // Update user stats if passed
-      if (evaluation.passed) {
+      if (attempt.passed) {
         const user = await User.findById(userId);
         if (user) {
           user.completeTicket(ticket.points);
@@ -110,12 +145,38 @@ export class EvaluationService {
             );
           }
 
+          // Handle quest progression if this is part of a quest
+          if (questId !== undefined && stageIndex !== undefined) {
+            console.log(`🗺️  Updating quest progress for quest ${questId}, stage ${stageIndex}...`);
+            
+            const progressUpdate = await QuestProgressService.completeStage(
+              userId,
+              questId,
+              stageIndex,
+              evaluation.score,
+              attempt._id,
+              timeSpent
+            );
+
+            result.questCompleted = progressUpdate.questCompleted;
+            result.nextStageUnlocked = progressUpdate.nextStageUnlocked;
+            result.nextStageIndex = progressUpdate.nextStageIndex;
+
+            if (progressUpdate.questCompleted) {
+              console.log(`🎉 Quest completed! User ${userId} finished quest ${questId}`);
+            } else if (progressUpdate.nextStageUnlocked) {
+              console.log(`🔓 Stage ${progressUpdate.nextStageIndex} unlocked for user ${userId}`);
+            }
+          }
+
           // Award off-chain badge for NFT system
           console.log('🎖️  Awarding badge for quest completion...');
           const badgeAwarded = await awardBadge(
             userId.toString(),
             ticketId.toString()
           );
+
+          result.badgeAwarded = badgeAwarded;
 
           if (badgeAwarded) {
             console.log('✅ Badge awarded successfully');
@@ -130,12 +191,15 @@ export class EvaluationService {
 
               if (nftAddress) {
                 console.log(`✅ NFT minted successfully: ${nftAddress}`);
+                result.nftMinted = true;
               } else {
                 console.log('⚠️  NFT minting failed or skipped (check logs above)');
+                result.nftMinted = false;
               }
             } else {
               console.log('💎 No Phantom wallet connected - badge remains off-chain');
               console.log('   User can connect wallet later to claim as NFT');
+              result.nftMinted = false;
             }
           }
 
@@ -153,57 +217,16 @@ export class EvaluationService {
             console.log(`🎉 Streak milestone reached: ${streakUpdate.milestoneReached.badgeName}`);
           }
         }
+      } else {
+        console.log(`❌ Solution did not pass: ${testExecution.passedCount}/${testExecution.totalCount} tests passed`);
       }
 
-      return attempt;
+      return result;
     } catch (error) {
       attempt.status = 'error';
       await attempt.save();
       throw error;
     }
-  }
-
-  /**
-   * Run test cases (simplified version)
-   * In production, this should use a secure sandbox
-   */
-  private static async runTestCases(
-    code: string,
-    testCases: any[],
-    language: string
-  ): Promise<ITestResult[]> {
-    // This is a simplified version
-    // In production, use a secure sandbox environment
-    const results: ITestResult[] = [];
-
-    for (let i = 0; i < testCases.length; i++) {
-      const testCase = testCases[i];
-      
-      try {
-        // Simplified test execution
-        // In production, use docker/vm sandbox
-        const passed = Math.random() > 0.3; // Simulate test results
-        
-        results.push({
-          testCaseIndex: i,
-          passed,
-          input: testCase.input,
-          expectedOutput: testCase.expectedOutput,
-          actualOutput: passed ? testCase.expectedOutput : 'Different output',
-        });
-      } catch (error) {
-        results.push({
-          testCaseIndex: i,
-          passed: false,
-          input: testCase.input,
-          expectedOutput: testCase.expectedOutput,
-          actualOutput: '',
-          error: error instanceof Error ? error.message : 'Unknown error',
-        });
-      }
-    }
-
-    return results;
   }
 
   /**
