@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useCallback, useEffect } from 'react'
+import React, { useState, useCallback, useEffect, useMemo } from 'react'
 import { useParams } from 'next/navigation'
 import {
   ResizablePanelGroup,
@@ -11,33 +11,15 @@ import TicketView, { TicketData } from '@/components/TicketView'
 import CodeEditor, { EditorFile, ConsoleOutput } from '@/components/CodeEditor'
 import { Header } from '@/components/header'
 
-const MOCK_FILES: EditorFile[] = [
-  {
-    id: 'solution',
-    name: 'solution.ts',
-    language: 'typescript',
-    content: `function twoSum(nums: number[], target: number): number[] {
-  // Write your solution here
-  
-  return [];
+const DEFAULT_FILE_CONTENT = `// Write your solution here
+`
+
+const LANGUAGE_EXTENSION_MAP: Record<string, string> = {
+  javascript: 'js',
+  typescript: 'ts',
+  python: 'py',
+  java: 'java',
 }
-`,
-    readOnly: false,
-  },
-  {
-    id: 'types',
-    name: 'types.ts',
-    language: 'typescript',
-    content: `// Type definitions (read-only)
-export type TestCase = {
-  nums: number[];
-  target: number;
-  expected: number[];
-};
-`,
-    readOnly: true,
-  },
-]
 
 export default function TicketPage() {
   const params = useParams<{ id: string | string[] }>()
@@ -100,6 +82,37 @@ export default function TicketPage() {
     }
   }, [ticketId])
 
+  const editorFiles = useMemo<EditorFile[]>(() => {
+    if (!ticket?.codeFiles || ticket.codeFiles.length === 0) {
+      const language = ticket?.language || 'javascript'
+      const extension = LANGUAGE_EXTENSION_MAP[language] || 'txt'
+      return [
+        {
+          id: 'solution',
+          name: `solution.${extension}`,
+          language,
+          content: DEFAULT_FILE_CONTENT,
+          readOnly: false,
+        },
+      ]
+    }
+
+    return ticket.codeFiles.map((file, index) => ({
+      id: `${file.filename}-${index}`,
+      name: file.filename,
+      language: file.language,
+      content: file.content,
+      readOnly: file.isReadOnly,
+    }))
+  }, [ticket])
+
+  const visibleTestCases = useMemo(() => {
+    const testCases = ticket?.testCases || []
+    return testCases.filter((testCase) => !testCase.isHidden)
+  }, [ticket])
+
+  const allTestCases = useMemo(() => ticket?.testCases || [], [ticket])
+
   // Handle Run (visible tests only)
   const handleRun = useCallback(async (files: EditorFile[]) => {
     setIsRunning(true)
@@ -107,21 +120,44 @@ export default function TicketPage() {
       { type: 'info', message: 'Running tests...' },
     ])
 
-    // Simulate execution delay
-    await new Promise((resolve) => setTimeout(resolve, 1500))
-    
-    setConsoleOutputs([
-      { type: 'info', message: 'Running tests...' },
-      { type: 'log', message: '> Test Case 1: nums = [2,7,11,15], target = 9' },
-      { type: 'success', message: '✓ Passed - Output: [0,1]' },
-      { type: 'log', message: '> Test Case 2: nums = [3,2,4], target = 6' },
-      { type: 'success', message: '✓ Passed - Output: [1,2]' },
-      { type: 'log', message: '' },
-      { type: 'success', message: '2/2 test cases passed!' },
-    ])
+    await new Promise((resolve) => setTimeout(resolve, 800))
+
+    if (visibleTestCases.length === 0) {
+      setConsoleOutputs([
+        { type: 'info', message: 'Running tests...' },
+        { type: 'error', message: 'No visible test cases available.' },
+      ])
+      setIsRunning(false)
+      return
+    }
+
+    const outputs: ConsoleOutput[] = [{ type: 'info', message: 'Running tests...' }]
+
+    visibleTestCases.forEach((testCase, index) => {
+      outputs.push({
+        type: 'log',
+        message: `> Test Case ${index + 1}: input = ${testCase.input}`,
+      })
+      outputs.push({
+        type: 'log',
+        message: `Expected Output: ${testCase.expectedOutput}`,
+      })
+      outputs.push({
+        type: 'success',
+        message: '✓ Test case registered (sandbox execution not configured)',
+      })
+    })
+
+    outputs.push({ type: 'log', message: '' })
+    outputs.push({
+      type: 'success',
+      message: `${visibleTestCases.length}/${visibleTestCases.length} test cases processed`,
+    })
+
+    setConsoleOutputs(outputs)
 
     setIsRunning(false)
-  }, [])
+  }, [visibleTestCases])
 
   // Handle Submit (all tests + evaluation)
   const handleSubmit = useCallback(async (files: EditorFile[]) => {
@@ -130,22 +166,37 @@ export default function TicketPage() {
       { type: 'info', message: 'Submitting solution...' },
     ])
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 2000))
+    await new Promise((resolve) => setTimeout(resolve, 1200))
 
-    setConsoleOutputs([
+    if (allTestCases.length === 0) {
+      setConsoleOutputs([
+        { type: 'info', message: 'Submitting solution...' },
+        { type: 'error', message: 'No test cases available for submission.' },
+      ])
+      setIsSubmitting(false)
+      return
+    }
+
+    const outputs: ConsoleOutput[] = [
       { type: 'info', message: 'Submitting solution...' },
       { type: 'log', message: 'Running all test cases (including hidden)...' },
-      { type: 'success', message: '✓ 15/15 test cases passed' },
-      { type: 'log', message: '' },
-      { type: 'success', message: '🎉 Solution accepted!' },
-      { type: 'info', message: 'Score: 95/100' },
-      { type: 'log', message: 'Time complexity: O(n)' },
-      { type: 'log', message: 'Space complexity: O(n)' },
-    ])
+    ]
+
+    allTestCases.forEach((testCase, index) => {
+      outputs.push({
+        type: 'log',
+        message: `> Test Case ${index + 1}: input = ${testCase.input}`,
+      })
+    })
+
+    outputs.push({ type: 'success', message: `✓ ${allTestCases.length}/${allTestCases.length} test cases processed` })
+    outputs.push({ type: 'log', message: '' })
+    outputs.push({ type: 'success', message: 'Submission completed (sandbox execution not configured)' })
+
+    setConsoleOutputs(outputs)
 
     setIsSubmitting(false)
-  }, [])
+  }, [allTestCases])
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -174,8 +225,8 @@ export default function TicketPage() {
 
           <ResizablePanel defaultSize="60%" minSize="35%" id="editor-panel">
             <CodeEditor
-              files={MOCK_FILES}
-              defaultActiveFileId="solution"
+              files={editorFiles}
+              defaultActiveFileId={editorFiles[0]?.id}
               onRun={handleRun}
               onSubmit={handleSubmit}
               isRunning={isRunning}

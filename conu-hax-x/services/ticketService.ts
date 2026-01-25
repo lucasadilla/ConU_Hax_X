@@ -35,9 +35,32 @@ export class TicketService {
     const jsonText = jsonMatch ? jsonMatch[1] : response;
     const ticketData = JSON.parse(jsonText);
 
+    const normalizeTimeLimit = (value: unknown): number | undefined => {
+      if (typeof value === 'number' && Number.isFinite(value)) return value;
+      if (typeof value === 'string') {
+        const match = value.match(/\d+/);
+        if (match) return Number(match[0]);
+      }
+      return undefined;
+    };
+
+    const normalizedTicketData = {
+      ...ticketData,
+      difficulty,
+      language,
+      isActive: typeof ticketData?.isActive === 'boolean' ? ticketData.isActive : true,
+      tags: Array.isArray(ticketData?.tags) ? ticketData.tags : [],
+      examples: Array.isArray(ticketData?.examples) ? ticketData.examples : [],
+      constraints: Array.isArray(ticketData?.constraints) ? ticketData.constraints : [],
+      hints: Array.isArray(ticketData?.hints) ? ticketData.hints : [],
+      testCases: Array.isArray(ticketData?.testCases) ? ticketData.testCases : [],
+      codeFiles: Array.isArray(ticketData?.codeFiles) ? ticketData.codeFiles : [],
+      timeLimit: normalizeTimeLimit(ticketData?.timeLimit),
+    };
+
     // Create and save ticket
     const ticket = await Ticket.create({
-      ...ticketData,
+      ...normalizedTicketData,
       generatedBy: 'ai',
       prompt: prompt.substring(0, 200), // Store first 200 chars
     });
